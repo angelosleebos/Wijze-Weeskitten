@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { authenticatedFetch } from '@/lib/api-client';
+import BlogModal from '@/components/BlogModal';
 
 interface BlogPost {
   id: number;
@@ -10,7 +11,7 @@ interface BlogPost {
   slug: string;
   excerpt: string;
   content: string;
-  image_url?: string;
+  image_url: string;
   published: boolean;
   created_at: string;
 }
@@ -18,6 +19,8 @@ interface BlogPost {
 export default function BlogAdmin() {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingPost, setEditingPost] = useState<BlogPost | undefined>(undefined);
 
   useEffect(() => {
     fetchPosts();
@@ -51,6 +54,25 @@ export default function BlogAdmin() {
     }
   };
 
+  const handleEdit = (post: BlogPost) => {
+    setEditingPost(post);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingPost(undefined);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setEditingPost(undefined);
+  };
+
+  const handleSave = () => {
+    fetchPosts();
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-md">
@@ -71,7 +93,10 @@ export default function BlogAdmin() {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Alle Blogposts</h2>
-            <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2">
+            <button 
+              onClick={handleAdd}
+              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2"
+            >
               <span className="material-symbols-outlined">add</span>
               Nieuwe Post
             </button>
@@ -114,7 +139,10 @@ export default function BlogAdmin() {
                           </div>
                         </div>
                         <div className="flex gap-2">
-                          <button className="text-blue-600 hover:text-blue-700 p-2">
+                          <button 
+                            onClick={() => handleEdit(post)}
+                            className="text-blue-600 hover:text-blue-700 p-2"
+                          >
                             <span className="material-symbols-outlined">edit</span>
                           </button>
                           <button
@@ -133,6 +161,15 @@ export default function BlogAdmin() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <BlogModal
+          post={editingPost}
+          onClose={handleModalClose}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

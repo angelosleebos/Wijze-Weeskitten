@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import createMollieClient from '@mollie/api-client';
+import { sendDonationConfirmation } from '@/lib/email';
 
 function getMollieClient() {
   return createMollieClient({
@@ -26,12 +27,31 @@ export async function POST(request: NextRequest) {
     const payment = await mollieClient.payments.get(paymentId);
 
     // Update donation status in database
-    await pool.query(
+    const updateResult = await pool.query(
       `UPDATE donations 
        SET payment_status = $1, updated_at = CURRENT_TIMESTAMP 
-       WHERE payment_id = $2`,
+       WHERE payment_id = $2
+       RETURNING *`,
       [payment.status, paymentId]
     );
+
+    // Send confirmation email if payment is successful
+    if (payment.status === 'paid' && updateResult.rows.length > 0) {
+      const donation = updateResult.rows[0];
+      
+      // Only send email if RESEND_API_KEY is configured
+      if (process.env.RESEND_API_KEY) {
+        await sendDonationConfirmation({
+          donorName: donation.donor_name,
+          donorEmail: donation.donor_email,
+          amount: parseFloat(donation.amount),
+          donationId: donation.payment_id,
+          date: new Date(donation.created_at),
+        });
+      } else {
+        console.warn('RESEND_API_KEY not configured, skipping email notification');
+      }
+    }
 
     return NextResponse.json({ status: 'ok' });
   } catch (error) {

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { authenticatedFetch } from '@/lib/api-client';
+import CatModal from '@/components/CatModal';
 
 interface Cat {
   id: number;
@@ -11,13 +12,15 @@ interface Cat {
   gender: string;
   breed: string;
   description: string;
-  image_url?: string;
-  is_adopted: boolean;
+  image_url: string;
+  status: string;
 }
 
 export default function CatsAdmin() {
   const [cats, setCats] = useState<Cat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingCat, setEditingCat] = useState<Cat | undefined>(undefined);
 
   useEffect(() => {
     fetchCats();
@@ -51,6 +54,25 @@ export default function CatsAdmin() {
     }
   };
 
+  const handleEdit = (cat: Cat) => {
+    setEditingCat(cat);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingCat(undefined);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setEditingCat(undefined);
+  };
+
+  const handleSave = () => {
+    fetchCats();
+  };
+
   return (
     <div className="min-h-screen bg-gray-100">
       <nav className="bg-white shadow-md">
@@ -71,7 +93,10 @@ export default function CatsAdmin() {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Alle Katten</h2>
-            <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2">
+            <button 
+              onClick={handleAdd}
+              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2"
+            >
               <span className="material-symbols-outlined">add</span>
               Nieuwe Kat
             </button>
@@ -91,18 +116,25 @@ export default function CatsAdmin() {
                   <div className="p-4">
                     <div className="flex justify-between items-start mb-2">
                       <h3 className="text-lg font-semibold">{cat.name}</h3>
-                      {cat.is_adopted && (
-                        <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded">
-                          Geadopteerd
-                        </span>
-                      )}
+                      <span className={`text-xs px-2 py-1 rounded ${
+                        cat.status === 'adopted' ? 'bg-green-100 text-green-800' :
+                        cat.status === 'reserved' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {cat.status === 'adopted' ? 'Geadopteerd' :
+                         cat.status === 'reserved' ? 'Gereserveerd' :
+                         'Beschikbaar'}
+                      </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">
                       {cat.age} jaar • {cat.gender === 'male' ? 'Kater' : 'Poes'} • {cat.breed}
                     </p>
                     <p className="text-gray-700 text-sm line-clamp-2 mb-4">{cat.description}</p>
                     <div className="flex gap-2">
-                      <button className="flex-1 text-blue-600 hover:bg-blue-50 py-2 px-3 rounded flex items-center justify-center gap-1">
+                      <button 
+                        onClick={() => handleEdit(cat)}
+                        className="flex-1 text-blue-600 hover:bg-blue-50 py-2 px-3 rounded flex items-center justify-center gap-1"
+                      >
                         <span className="material-symbols-outlined text-sm">edit</span>
                         Bewerk
                       </button>
@@ -121,6 +153,15 @@ export default function CatsAdmin() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <CatModal
+          cat={editingCat}
+          onClose={handleModalClose}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

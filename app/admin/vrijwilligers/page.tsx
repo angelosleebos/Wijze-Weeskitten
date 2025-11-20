@@ -2,19 +2,24 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { authenticatedFetch } from '@/lib/api-client';
+import VolunteerModal from '@/components/VolunteerModal';
 
 interface Volunteer {
   id: number;
   name: string;
   role: string;
   email: string;
-  phone?: string;
-  bio?: string;
+  phone: string;
+  bio: string;
+  image_url: string;
 }
 
 export default function VolunteersAdmin() {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editingVolunteer, setEditingVolunteer] = useState<Volunteer | undefined>(undefined);
 
   useEffect(() => {
     fetchVolunteers();
@@ -36,7 +41,7 @@ export default function VolunteersAdmin() {
     if (!confirm('Weet je zeker dat je deze vrijwilliger wilt verwijderen?')) return;
 
     try {
-      const res = await fetch(`/api/volunteers?id=${id}`, {
+      const res = await authenticatedFetch(`/api/volunteers/${id}`, {
         method: 'DELETE',
       });
 
@@ -46,6 +51,25 @@ export default function VolunteersAdmin() {
     } catch (error) {
       console.error('Error deleting volunteer:', error);
     }
+  };
+
+  const handleEdit = (volunteer: Volunteer) => {
+    setEditingVolunteer(volunteer);
+    setModalOpen(true);
+  };
+
+  const handleAdd = () => {
+    setEditingVolunteer(undefined);
+    setModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setModalOpen(false);
+    setEditingVolunteer(undefined);
+  };
+
+  const handleSave = () => {
+    fetchVolunteers();
   };
 
   return (
@@ -68,7 +92,10 @@ export default function VolunteersAdmin() {
         <div className="bg-white rounded-lg shadow-lg p-6">
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-xl font-semibold">Alle Vrijwilligers</h2>
-            <button className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2">
+            <button 
+              onClick={handleAdd}
+              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 flex items-center gap-2"
+            >
               <span className="material-symbols-outlined">add</span>
               Nieuwe Vrijwilliger
             </button>
@@ -103,7 +130,10 @@ export default function VolunteersAdmin() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <button className="text-blue-600 hover:text-blue-700 p-2">
+                      <button 
+                        onClick={() => handleEdit(volunteer)}
+                        className="text-blue-600 hover:text-blue-700 p-2"
+                      >
                         <span className="material-symbols-outlined">edit</span>
                       </button>
                       <button
@@ -120,6 +150,15 @@ export default function VolunteersAdmin() {
           )}
         </div>
       </div>
+
+      {/* Modal */}
+      {modalOpen && (
+        <VolunteerModal
+          volunteer={editingVolunteer}
+          onClose={handleModalClose}
+          onSave={handleSave}
+        />
+      )}
     </div>
   );
 }

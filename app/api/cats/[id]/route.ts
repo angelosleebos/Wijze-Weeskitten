@@ -42,16 +42,16 @@ export async function PUT(
     
     const { id } = await params;
     const body = await request.json();
-    const { name, age, gender, breed, description, image_url, is_adopted } = body;
+    const { name, age, gender, breed, description, image_url, status } = body;
     
     const result = await pool.query(
       `UPDATE cats 
        SET name = $1, age = $2, gender = $3, breed = $4, 
-           description = $5, image_url = $6, is_adopted = $7, 
+           description = $5, image_url = $6, status = $7, 
            updated_at = CURRENT_TIMESTAMP
        WHERE id = $8 
        RETURNING *`,
-      [name, age, gender, breed, description, image_url, is_adopted, id]
+      [name, age, gender, breed, description, image_url, status, id]
     );
     
     if (result.rows.length === 0) {

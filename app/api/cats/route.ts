@@ -10,9 +10,10 @@ export async function GET(request: NextRequest) {
     
     const query = showAdopted 
       ? 'SELECT * FROM cats ORDER BY created_at DESC'
-      : 'SELECT * FROM cats WHERE is_adopted = FALSE ORDER BY created_at DESC';
+      : 'SELECT * FROM cats WHERE status != $1 ORDER BY created_at DESC';
     
-    const result = await pool.query(query);
+    const params = showAdopted ? [] : ['adopted'];
+    const result = await pool.query(query, params);
     
     return NextResponse.json({ cats: result.rows });
   } catch (error) {
@@ -31,13 +32,13 @@ export async function POST(request: NextRequest) {
     requireAuth(request);
     
     const body = await request.json();
-    const { name, age, gender, breed, description, image_url } = body;
+    const { name, age, gender, breed, description, image_url, status = 'available' } = body;
     
     const result = await pool.query(
-      `INSERT INTO cats (name, age, gender, breed, description, image_url) 
-       VALUES ($1, $2, $3, $4, $5, $6) 
+      `INSERT INTO cats (name, age, gender, breed, description, image_url, status) 
+       VALUES ($1, $2, $3, $4, $5, $6, $7) 
        RETURNING *`,
-      [name, age, gender, breed, description, image_url]
+      [name, age, gender, breed, description, image_url, status]
     );
     
     return NextResponse.json({ cat: result.rows[0] }, { status: 201 });
