@@ -19,6 +19,20 @@ Een moderne website voor een kattenstichting met CMS, donatiemogelijkheid via iD
 - **Payments**: Mollie (iDEAL)
 - **Container**: Docker & Docker Compose
 
+## Security Checklist
+
+⚠️ **Voordat je live gaat, check het volgende:**
+
+- [ ] `.env` bevat een sterke JWT_SECRET (gebruik `openssl rand -base64 32`)
+- [ ] Admin wachtwoord voldoet aan eisen (min. 12 tekens, hoofdletter, cijfer, speciaal karakter)
+- [ ] MOLLIE_API_KEY is een live key (niet test key)
+- [ ] DATABASE_URL bevat sterke database credentials
+- [ ] `.env` staat NIET in git (check met `git status`)
+- [ ] All admin API endpoints zijn beschermd met JWT authenticatie
+- [ ] Firewall is correct geconfigureerd
+- [ ] SSL certificaat is geïnstalleerd
+- [ ] Database backups zijn geconfigureerd
+
 ## Lokaal Development
 
 ### Vereisten
@@ -39,10 +53,11 @@ cd website-kattenstichting
 cp .env.example .env
 ```
 
-3. Pas de environment variabelen aan in `.env`:
-   - Voeg je Mollie API key toe
-   - Pas JWT secret aan
+3. **BELANGRIJK - Pas de environment variabelen aan in `.env`:**
+   - Genereer een sterke JWT_SECRET: `openssl rand -base64 32`
+   - Voeg je Mollie API key toe (krijg je van https://mollie.com)
    - Database credentials zijn al correct voor Docker
+   - **LET OP: Commit `.env` NOOIT naar git!**
 
 4. Start de applicatie:
 ```bash
@@ -110,12 +125,22 @@ De database bevat de volgende tabellen:
 
 Toegang tot het CMS admin panel: http://localhost:3000/admin
 
-Standaard admin gebruiker aanmaken:
+### Admin gebruiker aanmaken:
+
 ```bash
-docker-compose exec db psql -U kattenstichting -d kattenstichting -c "INSERT INTO admins (username, email, password_hash) VALUES ('admin', 'admin@kattenstichting.nl', '\$2a\$10\$YourHashedPasswordHere');"
+# Automatisch met password validatie
+npm run admin:create
+
+# Of via Docker
+docker-compose exec web npm run admin:create
 ```
 
-Je moet zelf een wachtwoord hashen met bcrypt en de hash invullen.
+Wachtwoord eisen:
+- Minimaal 12 karakters
+- Minimaal 1 hoofdletter
+- Minimaal 1 kleine letter  
+- Minimaal 1 cijfer
+- Minimaal 1 speciaal karakter (!@#$%^&*)
 
 ## Productie Build
 

@@ -7,6 +7,25 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
+function validatePassword(password) {
+  if (password.length < 12) {
+    return 'Wachtwoord moet minimaal 12 karakters zijn';
+  }
+  if (!/[A-Z]/.test(password)) {
+    return 'Wachtwoord moet minimaal 1 hoofdletter bevatten';
+  }
+  if (!/[a-z]/.test(password)) {
+    return 'Wachtwoord moet minimaal 1 kleine letter bevatten';
+  }
+  if (!/[0-9]/.test(password)) {
+    return 'Wachtwoord moet minimaal 1 cijfer bevatten';
+  }
+  if (!/[!@#$%^&*]/.test(password)) {
+    return 'Wachtwoord moet minimaal 1 speciaal karakter bevatten (!@#$%^&*)';
+  }
+  return null;
+}
+
 async function createAdmin() {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
@@ -22,11 +41,23 @@ async function createAdmin() {
       rl.question('E-mail: ', resolve);
     });
 
-    const password = await new Promise((resolve) => {
-      rl.question('Wachtwoord: ', (answer) => {
-        resolve(answer);
+    let password;
+    let passwordValid = false;
+    
+    while (!passwordValid) {
+      password = await new Promise((resolve) => {
+        rl.question('Wachtwoord (min. 12 tekens, hoofdletter, cijfer, speciaal karakter): ', (answer) => {
+          resolve(answer);
+        });
       });
-    });
+      
+      const validationError = validatePassword(password);
+      if (validationError) {
+        console.log(`\n❌ ${validationError}\n`);
+      } else {
+        passwordValid = true;
+      }
+    }
 
     // Hash wachtwoord
     const salt = await bcrypt.genSalt(10);

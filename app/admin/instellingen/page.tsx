@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { authenticatedFetch } from '@/lib/api-client';
 
 interface Setting {
   key: string;
@@ -79,7 +80,7 @@ export default function SettingsAdmin() {
       }));
 
       for (const update of updates) {
-        await fetch('/api/settings', {
+        await authenticatedFetch('/api/settings', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(update)

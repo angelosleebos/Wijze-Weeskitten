@@ -1,3 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
-  <text y="75" font-size="80">🐱</text>
+  <defs>
+    <linearGradient id="catGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f78fb8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ee6fa0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Cat head -->
+  <circle cx="50" cy="55" r="30" fill="url(#catGradient)"/>
+  
+  <!-- Left ear -->
+  <path d="M 30 35 L 20 15 L 35 30 Z" fill="url(#catGradient)"/>
+  
+  <!-- Right ear -->
+  <path d="M 70 35 L 80 15 L 65 30 Z" fill="url(#catGradient)"/>
+  
+  <!-- Eyes -->
+  <circle cx="42" cy="50" r="4" fill="white"/>
+  <circle cx="58" cy="50" r="4" fill="white"/>
+  <circle cx="43" cy="51" r="2" fill="#333"/>
+  <circle cx="59" cy="51" r="2" fill="#333"/>
+  
+  <!-- Nose -->
+  <path d="M 50 58 L 47 62 L 53 62 Z" fill="#d91e63"/>
+  
+  <!-- Whiskers -->
+  <line x1="30" y1="58" x2="15" y2="56" stroke="white" stroke-width="1.5" opacity="0.8"/>
+  <line x1="30" y1="62" x2="15" y2="64" stroke="white" stroke-width="1.5" opacity="0.8"/>
+  <line x1="70" y1="58" x2="85" y2="56" stroke="white" stroke-width="1.5" opacity="0.8"/>
+  <line x1="70" y1="62" x2="85" y2="64" stroke="white" stroke-width="1.5" opacity="0.8"/>
 </svg>

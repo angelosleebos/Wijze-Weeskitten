@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { authenticatedFetch } from '@/lib/api-client';
 
 interface Cat {
   id: number;
@@ -38,7 +39,7 @@ export default function CatsAdmin() {
     if (!confirm('Weet je zeker dat je deze kat wilt verwijderen?')) return;
 
     try {
-      const res = await fetch(`/api/cats/${id}`, {
+      const res = await authenticatedFetch(`/api/cats/${id}`, {
         method: 'DELETE',
       });
 

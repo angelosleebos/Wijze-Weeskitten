@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 // GET all volunteers
 export async function GET() {
@@ -21,6 +22,9 @@ export async function GET() {
 // POST new volunteer (admin only)
 export async function POST(request: NextRequest) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const body = await request.json();
     const { name, role, email, phone, bio, image_url, display_order } = body;
     
@@ -32,8 +36,14 @@ export async function POST(request: NextRequest) {
     );
     
     return NextResponse.json({ volunteer: result.rows[0] }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating volunteer:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to create volunteer' },
       { status: 500 }

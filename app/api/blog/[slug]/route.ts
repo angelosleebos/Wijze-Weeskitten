@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 // GET single blog post by slug
 export async function GET(
@@ -36,6 +37,9 @@ export async function PUT(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const { slug: paramSlug } = await params;
     const body = await request.json();
     const { title, slug, excerpt, content, image_url, published } = body;
@@ -57,8 +61,14 @@ export async function PUT(
     }
     
     return NextResponse.json({ post: result.rows[0] });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating blog post:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to update blog post' },
       { status: 500 }
@@ -72,11 +82,20 @@ export async function DELETE(
   { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const { slug } = await params;
     await pool.query('DELETE FROM blog_posts WHERE slug = $1', [slug]);
     return NextResponse.json({ message: 'Blog post deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting blog post:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to delete blog post' },
       { status: 500 }

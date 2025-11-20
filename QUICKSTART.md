@@ -8,6 +8,10 @@
 
 ### 2. Start de applicatie
 
+**BELANGRIJK:** Voordat je start, controleer je `.env` bestand:
+- JWT_SECRET moet een sterke random string zijn (genereer met `openssl rand -base64 32`)
+- MOLLIE_API_KEY moet geldig zijn
+
 ```bash
 # Navigeer naar project folder
 cd website-kattenstichting
@@ -26,7 +30,7 @@ De applicatie start nu op http://localhost:3000
 De database wordt automatisch aangemaakt met het schema. Voeg nu een admin gebruiker toe:
 
 ```bash
-# Maak admin gebruiker aan
+# Maak admin gebruiker aan (met wachtwoord validatie)
 npm run admin:create
 
 # Of direct via docker
@@ -34,6 +38,12 @@ docker-compose exec web npm run admin:create
 ```
 
 Volg de prompts om gebruikersnaam, email en wachtwoord in te voeren.
+
+**Wachtwoord eisen:**
+- Minimaal 12 karakters
+- Minimaal 1 hoofdletter
+- Minimaal 1 cijfer
+- Minimaal 1 speciaal karakter (!@#$%^&*)
 
 ### 4. (Optioneel) Seed database met voorbeelddata
 

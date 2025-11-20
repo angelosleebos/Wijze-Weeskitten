@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 // GET single cat
 export async function GET(
@@ -36,6 +37,9 @@ export async function PUT(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const { id } = await params;
     const body = await request.json();
     const { name, age, gender, breed, description, image_url, is_adopted } = body;
@@ -58,8 +62,14 @@ export async function PUT(
     }
     
     return NextResponse.json({ cat: result.rows[0] });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating cat:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to update cat' },
       { status: 500 }
@@ -73,11 +83,20 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const { id } = await params;
     await pool.query('DELETE FROM cats WHERE id = $1', [id]);
     return NextResponse.json({ message: 'Cat deleted successfully' });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error deleting cat:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to delete cat' },
       { status: 500 }

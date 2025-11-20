@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { authenticatedFetch } from '@/lib/api-client';
 
 interface BlogPost {
   id: number;
@@ -38,7 +39,7 @@ export default function BlogAdmin() {
     if (!confirm('Weet je zeker dat je deze blogpost wilt verwijderen?')) return;
 
     try {
-      const res = await fetch(`/api/blog/${slug}`, {
+      const res = await authenticatedFetch(`/api/blog/${slug}`, {
         method: 'DELETE',
       });
 

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 // GET all blog posts
 export async function GET(request: NextRequest) {
@@ -26,6 +27,9 @@ export async function GET(request: NextRequest) {
 // POST new blog post (admin only)
 export async function POST(request: NextRequest) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const body = await request.json();
     const { title, slug, excerpt, content, image_url, author_id, published } = body;
     
@@ -37,8 +41,14 @@ export async function POST(request: NextRequest) {
     );
     
     return NextResponse.json({ post: result.rows[0] }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating blog post:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to create blog post' },
       { status: 500 }

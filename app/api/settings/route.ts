@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 // GET site settings
 export async function GET() {
@@ -24,6 +25,9 @@ export async function GET() {
 // PUT update setting (admin only)
 export async function PUT(request: NextRequest) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const body = await request.json();
     const { key, value } = body;
     
@@ -37,8 +41,14 @@ export async function PUT(request: NextRequest) {
     );
     
     return NextResponse.json({ setting: result.rows[0] });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error updating setting:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to update setting' },
       { status: 500 }

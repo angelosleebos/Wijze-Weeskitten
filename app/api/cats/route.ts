@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
+import { requireAuth } from '@/lib/auth';
 
 // GET all cats (not adopted)
 export async function GET(request: NextRequest) {
@@ -26,6 +27,9 @@ export async function GET(request: NextRequest) {
 // POST new cat (admin only)
 export async function POST(request: NextRequest) {
   try {
+    // Verify authentication
+    requireAuth(request);
+    
     const body = await request.json();
     const { name, age, gender, breed, description, image_url } = body;
     
@@ -37,8 +41,14 @@ export async function POST(request: NextRequest) {
     );
     
     return NextResponse.json({ cat: result.rows[0] }, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error creating cat:', error);
+    if (error.message === 'Unauthorized' || error.message === 'Invalid token') {
+      return NextResponse.json(
+        { error: 'Unauthorized' },
+        { status: 401 }
+      );
+    }
     return NextResponse.json(
       { error: 'Failed to create cat' },
       { status: 500 }

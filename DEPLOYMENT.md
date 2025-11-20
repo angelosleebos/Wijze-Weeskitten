@@ -14,12 +14,25 @@
 
 1. Maak productie `.env` bestand aan:
 ```bash
+# Genereer een sterke JWT secret
+openssl rand -base64 32
+
+# Maak .env file
+cat > .env << 'EOF'
 DATABASE_URL=postgresql://user:password@localhost:5432/kattenstichting_prod
 MOLLIE_API_KEY=live_your_real_mollie_key
-JWT_SECRET=your_very_secure_random_string_here
+JWT_SECRET=paste_the_generated_secret_here
 NEXT_PUBLIC_API_URL=https://yourdomain.com
 NODE_ENV=production
+EOF
 ```
+
+**KRITIEKE SECURITY PUNTEN:**
+- JWT_SECRET MOET minstens 32 karakters random string zijn
+- Gebruik LIVE Mollie key, niet test key
+- Database wachtwoord moet sterk zijn (min. 16 karakters)
+- Bewaar `.env` NOOIT in git of publieke locaties
+- Gebruik environment secrets in productie (Azure Key Vault, AWS Secrets Manager, etc.)
 
 2. Zorg dat Mollie webhook correct is geconfigureerd:
    - URL: `https://yourdomain.com/api/donations/webhook`
@@ -165,15 +178,20 @@ pm2 restart kattenstichting
 
 ### 10. Security Checklist
 
-- [ ] SSL certificaat geïnstalleerd
-- [ ] Environment variabelen veilig opgeslagen
-- [ ] Database wachtwoorden sterk en uniek
-- [ ] JWT_SECRET is een sterke random string
+- [ ] SSL certificaat geïnstalleerd en geldig
+- [ ] Environment variabelen veilig opgeslagen (niet in git!)
+- [ ] Database wachtwoorden sterk en uniek (min. 16 karakters)
+- [ ] JWT_SECRET is een sterke random string (min. 32 chars, gebruik `openssl rand -base64 32`)
+- [ ] Admin wachtwoord voldoet aan eisen (min. 12 chars, hoofdletter, cijfer, speciaal karakter)
 - [ ] Mollie API key is LIVE key (niet test)
 - [ ] Firewall geconfigureerd (alleen 80, 443, 22 open)
-- [ ] Database backups draaien
-- [ ] Regular security updates
-- [ ] Admin wachtwoorden sterk en uniek
+- [ ] Database backups draaien en getest
+- [ ] Regular security updates gepland
+- [ ] API endpoints beschermd met JWT authenticatie
+- [ ] Rate limiting geïmplementeerd op login endpoint (optioneel maar aanbevolen)
+- [ ] HTTPS redirect werkt correct
+- [ ] Database heeft geen publieke toegang
+- [ ] Admin panel alleen toegankelijk via HTTPS
 
 ## Mollie iDEAL Setup
 
