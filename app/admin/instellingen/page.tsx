@@ -58,6 +58,7 @@ export default function SettingsAdmin() {
   const [message, setMessage] = useState('');
   const [testingEmail, setTestingEmail] = useState(false);
   const [testEmailAddress, setTestEmailAddress] = useState('');
+  const [uploadingHeroImage, setUploadingHeroImage] = useState(false);
 
   useEffect(() => {
     fetchSettings();
@@ -189,6 +190,68 @@ export default function SettingsAdmin() {
       setTimeout(() => setMessage(''), 3000);
     } finally {
       setTestingEmail(false);
+    }
+  };
+
+  const handleHeroImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setMessage('Alleen afbeeldingsbestanden zijn toegestaan');
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setMessage('Afbeelding mag maximaal 5MB zijn');
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+
+    setUploadingHeroImage(true);
+    setMessage('');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('type', 'hero');
+
+      // Get auth token manually for FormData upload
+      const token = localStorage.getItem('admin_token');
+      const csrfToken = localStorage.getItem('csrf_token');
+      
+      const headers: HeadersInit = {
+        'Authorization': `Bearer ${token}`,
+      };
+      
+      if (csrfToken) {
+        headers['X-CSRF-Token'] = csrfToken;
+      }
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        headers: headers,
+        body: formData
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || 'Upload failed');
+      }
+
+      const data = await res.json();
+      handleChange('hero_image', data.url);
+      setMessage('Hero afbeelding succesvol geüpload!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error: any) {
+      setMessage(error.message || 'Fout bij uploaden van afbeelding');
+      console.error('Error uploading image:', error);
+      setTimeout(() => setMessage(''), 3000);
+    } finally {
+      setUploadingHeroImage(false);
     }
   };
 
@@ -369,25 +432,46 @@ export default function SettingsAdmin() {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Hero Achtergrond Afbeelding
                   </label>
-                  <input
-                    type="text"
-                    value={settings.hero_image}
-                    onChange={(e) => handleChange('hero_image', e.target.value)}
-                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
-                    placeholder="/images/hero-cats.jpg"
-                  />
+                  
                   {settings.hero_image && (
-                    <div className="mt-3 rounded-lg overflow-hidden border">
+                    <div className="mb-3 rounded-lg overflow-hidden border">
                       <img 
                         src={settings.hero_image} 
-                        alt="Preview" 
-                        className="w-full h-32 object-cover"
+                        alt="Hero Preview" 
+                        className="w-full h-48 object-cover"
                       />
                     </div>
                   )}
-                  <p className="text-xs text-gray-500 mt-2">
-                    Beschikbare afbeeldingen: /images/hero-cats.jpg, /images/cat-1.jpg tot cat-5.jpg
-                  </p>
+
+                  <div className="space-y-2">
+                    <label className="block">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleHeroImageUpload}
+                        disabled={uploadingHeroImage}
+                        className="hidden"
+                        id="hero-image-upload"
+                      />
+                      <div className="w-full px-4 py-3 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition cursor-pointer text-center font-semibold">
+                        {uploadingHeroImage ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined animate-spin">hourglass_empty</span>
+                            Uploaden...
+                          </span>
+                        ) : (
+                          <span className="flex items-center justify-center gap-2">
+                            <span className="material-symbols-outlined">upload</span>
+                            Nieuwe afbeelding uploaden
+                          </span>
+                        )}
+                      </div>
+                    </label>
+                    
+                    <p className="text-xs text-gray-500">
+                      Aanbevolen: breed formaat (bijv. 1920x600px), max 5MB
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>

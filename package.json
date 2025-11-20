@@ -13,7 +13,9 @@
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f",
-    "docker:build": "docker-compose up -d --build"
+    "docker:build": "docker-compose up -d --build",
+    "screenshots": "playwright test tests/screenshots.spec.ts",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@mollie/api-client": "^4.3.3",

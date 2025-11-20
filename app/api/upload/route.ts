@@ -31,7 +31,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    if (!type || !['cats', 'blog', 'volunteers'].includes(type)) {
+    if (!type || !['cats', 'blog', 'volunteers', 'hero'].includes(type)) {
       return NextResponse.json(
         { error: 'Invalid upload type' },
         { status: 400 }

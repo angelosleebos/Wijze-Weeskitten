@@ -170,7 +170,7 @@ export default function CatsGrid({ cats }: CatsGridProps) {
               {cat.status === 'available' ? (
                 <button
                   onClick={() => setSelectedCat(cat)}
-                  className="w-full bg-pink-500 text-white px-6 py-3 rounded-lg hover:bg-pink-600 transition flex items-center justify-center gap-2"
+                  className="w-full bg-primary-600 text-white px-6 py-3 rounded-lg hover:bg-primary-700 transition flex items-center justify-center gap-2"
                 >
                   <span className="material-symbols-outlined">favorite</span>
                   Ik wil {cat.name} adopteren

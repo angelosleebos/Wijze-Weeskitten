@@ -17,3 +17,10 @@ body {
     )
     rgb(var(--background-start-rgb));
 }
+
+/* Ensure pure white text on buttons */
+button .text-white,
+a .text-white,
+.text-white {
+  color: #ffffff !important;
+}
