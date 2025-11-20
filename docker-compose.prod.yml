@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 16 Database
+  db:
+    image: postgres:16-alpine
+    container_name: kattenstichting-db-prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-kattenstichting}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-kattenstichting_prod}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_prod_data:/var/lib/postgresql/data
+    networks:
+      - kattenstichting-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kattenstichting}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: kattenstichting-web-prod
+    restart: always
+    environment:
+      DATABASE_URL: ${DATABASE_URL}
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NODE_ENV: production
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kattenstichting-network
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/api/settings', (r) => process.exit(r.statusCode === 200 ? 0 : 1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  postgres_prod_data:
+    driver: local
+
+networks:
+  kattenstichting-network:
+    driver: bridge

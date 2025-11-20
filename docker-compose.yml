@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  # PostgreSQL 16 Database
+  db:
+    image: postgres:16-alpine
+    container_name: kattenstichting-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: kattenstichting
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: kattenstichting
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+    networks:
+      - kattenstichting-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kattenstichting"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: kattenstichting-web
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://kattenstichting:password@db:5432/kattenstichting
+      MOLLIE_API_KEY: ${MOLLIE_API_KEY}
+      JWT_SECRET: ${JWT_SECRET}
+      NEXT_PUBLIC_API_URL: http://localhost:3000
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - kattenstichting-network
+    command: sh -c "npm run dev"
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  kattenstichting-network:
+    driver: bridge
