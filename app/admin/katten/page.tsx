@@ -123,7 +123,7 @@ export default function CatsAdmin() {
                       }`}>
                         {cat.status === 'adopted' ? 'Geadopteerd' :
                          cat.status === 'reserved' ? 'Gereserveerd' :
-                         'Beschikbaar'}
+                         'Zoekt een thuis'}
                       </span>
                     </div>
                     <p className="text-sm text-gray-600 mb-2">

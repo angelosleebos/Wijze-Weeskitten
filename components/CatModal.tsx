@@ -187,7 +187,7 @@ export default function CatModal({ cat, onClose, onSave }: CatModalProps) {
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
             >
-              <option value="available">Beschikbaar</option>
+              <option value="available">Zoekt een thuis</option>
               <option value="reserved">Gereserveerd</option>
               <option value="adopted">Geadopteerd</option>
             </select>

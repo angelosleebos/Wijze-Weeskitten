@@ -90,8 +90,8 @@ export default function AdminDashboard() {
                   <span className="text-gray-600">Totaal</span>
                   <span className="font-bold">{stats.cats.total}</span>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Beschikbaar</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-600">Zoekt een thuis</span>
                   <span className="text-blue-600 font-semibold">{stats.cats.available}</span>
                 </div>
                 <div className="flex justify-between text-sm">

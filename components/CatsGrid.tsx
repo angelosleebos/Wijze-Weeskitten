@@ -58,7 +58,7 @@ export default function CatsGrid({ cats }: CatsGridProps) {
       case 'reserved':
         return <span className="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-sm">Gereserveerd</span>;
       default:
-        return <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Beschikbaar</span>;
+        return <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">Zoekt een thuis</span>;
     }
   };
 
@@ -130,7 +130,7 @@ export default function CatsGrid({ cats }: CatsGridProps) {
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
             >
               <option value="all">Alle</option>
-              <option value="available">Beschikbaar</option>
+              <option value="available">Zoekt een thuis</option>
               <option value="reserved">Gereserveerd</option>
               <option value="adopted">Geadopteerd</option>
             </select>
