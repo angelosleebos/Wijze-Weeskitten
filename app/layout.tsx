@@ -7,8 +7,35 @@ import Footer from '@/components/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Stichting het Wijze Weeskitten - Help katten in nood',
-  description: 'Onvoorwaardelijke hulp aan katten in noodsituaties',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'),
+  title: {
+    default: 'Stichting het Wijze Weeskitten - Help katten in nood',
+    template: '%s | Stichting het Wijze Weeskitten',
+  },
+  description: 'Onvoorwaardelijke hulp aan katten in noodsituaties. Adopteer een kat, doneer of wordt vrijwilliger bij onze stichting.',
+  keywords: ['katten', 'adoptie', 'dierenwelzijn', 'kattenstichting', 'donatie', 'vrijwilliger', 'Nederland'],
+  authors: [{ name: 'Stichting het Wijze Weeskitten' }],
+  openGraph: {
+    type: 'website',
+    locale: 'nl_NL',
+    url: '/',
+    siteName: 'Stichting het Wijze Weeskitten',
+    title: 'Stichting het Wijze Weeskitten - Help katten in nood',
+    description: 'Onvoorwaardelijke hulp aan katten in noodsituaties. Adopteer een kat, doneer of wordt vrijwilliger bij onze stichting.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Stichting het Wijze Weeskitten - Help katten in nood',
+    description: 'Onvoorwaardelijke hulp aan katten in noodsituaties. Adopteer een kat, doneer of wordt vrijwilliger bij onze stichting.',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
 }
 
 export default function RootLayout({

@@ -1,3 +1,16 @@
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Neem contact op met onze vrijwilligers voor vragen over adoptie, donaties of vrijwilligerswerk.',
+  keywords: ['contact', 'vrijwilligers', 'email', 'telefoon', 'kattenstichting'],
+  openGraph: {
+    title: 'Contact | Stichting het Wijze Weeskitten',
+    description: 'Neem contact op met onze vrijwilligers voor vragen over adoptie, donaties of vrijwilligerswerk.',
+    type: 'website',
+  },
+};
+
 async function getVolunteers() {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/volunteers`, {
     cache: 'no-store',

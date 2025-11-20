@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import ImageUpload from './ImageUpload';
+import RichTextEditor from './RichTextEditor';
 import { authenticatedFetch } from '@/lib/api-client';
 
 interface BlogPost {
@@ -182,16 +183,13 @@ export default function BlogModal({ post, onClose, onSave }: BlogModalProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Inhoud *
             </label>
-            <textarea
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              rows={12}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent resize-none font-mono text-sm"
-              placeholder="Schrijf hier de volledige blog post... (Markdown wordt ondersteund)"
-              required
+            <RichTextEditor
+              content={formData.content}
+              onChange={(content) => setFormData({ ...formData, content })}
+              placeholder="Schrijf hier de volledige blog post..."
             />
             <p className="text-xs text-gray-500 mt-1">
-              Tip: Je kunt Markdown gebruiken voor opmaak (**vet**, *cursief*, ## Kopje, etc.)
+              Gebruik de toolbar voor opmaak (vet, cursief, kopjes, lijsten, links, etc.)
             </p>
           </div>
 

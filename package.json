@@ -17,6 +17,10 @@
   },
   "dependencies": {
     "@mollie/api-client": "^4.3.3",
+    "@tiptap/extension-image": "^3.11.0",
+    "@tiptap/extension-link": "^3.11.0",
+    "@tiptap/react": "^3.11.0",
+    "@tiptap/starter-kit": "^3.11.0",
     "@types/formidable": "^3.4.6",
     "bcryptjs": "^2.4.3",
     "formidable": "^3.5.4",

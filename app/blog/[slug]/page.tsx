@@ -1,9 +1,42 @@
+import type { Metadata } from 'next';
+
 async function getBlogPost(slug: string) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blog/${slug}`, {
     cache: 'no-store',
   });
   const data = await res.json();
   return data.post;
+}
+
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
+  const { slug } = await params;
+  const post = await getBlogPost(slug);
+
+  if (!post) {
+    return {
+      title: 'Blog post niet gevonden',
+    };
+  }
+
+  return {
+    title: post.title,
+    description: post.excerpt || post.content.substring(0, 160).replace(/<[^>]*>/g, ''),
+    keywords: ['katten', 'blog', post.title],
+    openGraph: {
+      title: post.title,
+      description: post.excerpt || post.content.substring(0, 160).replace(/<[^>]*>/g, ''),
+      type: 'article',
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      images: post.image_url ? [{ url: post.image_url, alt: post.title }] : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt || post.content.substring(0, 160).replace(/<[^>]*>/g, ''),
+      images: post.image_url ? [post.image_url] : [],
+    },
+  };
 }
 
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -21,6 +54,30 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
   return (
     <article className="container mx-auto px-4 py-12 max-w-4xl">
+      {/* JSON-LD Structured Data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: post.title,
+            description: post.excerpt || post.content.substring(0, 160).replace(/<[^>]*>/g, ''),
+            image: post.image_url || undefined,
+            datePublished: post.created_at,
+            dateModified: post.updated_at,
+            author: {
+              '@type': 'Organization',
+              name: 'Stichting het Wijze Weeskitten',
+            },
+            publisher: {
+              '@type': 'Organization',
+              name: 'Stichting het Wijze Weeskitten',
+            },
+          }),
+        }}
+      />
+
       {post.image_url && (
         <div className="h-96 bg-gray-200 rounded-lg overflow-hidden mb-8">
           <img 

@@ -193,6 +193,15 @@ export default function AdminDashboard() {
           </Link>
 
           <Link
+            href="/admin/adoptie-aanvragen"
+            className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
+          >
+            <span className="material-symbols-outlined text-primary-500 text-5xl mb-4 block">favorite</span>
+            <h2 className="text-2xl font-bold mb-2">Adoptie Aanvragen</h2>
+            <p className="text-gray-600">Bekijk en beheer adoptieaanvragen</p>
+          </Link>
+
+          <Link
             href="/admin/blog"
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
           >

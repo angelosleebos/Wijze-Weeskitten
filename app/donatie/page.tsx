@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import type { Metadata } from 'next';
+
+// Note: Metadata export doesn't work in client components
+// This is defined in layout.tsx or handled by parent
 
 export default function DonatiePage() {
   const [formData, setFormData] = useState({

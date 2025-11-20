@@ -3,7 +3,7 @@ import Link from 'next/link';
 async function getCats() {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/cats`, {
-      cache: 'no-store',
+      next: { revalidate: 60 },
     });
     const data = await res.json();
     return data.cats?.slice(0, 3) || [];
