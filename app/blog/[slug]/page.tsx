@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import DOMPurify from 'isomorphic-dompurify';
 
 async function getBlogPost(slug: string) {
   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/blog/${slug}`, {
@@ -100,7 +101,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
 
       <div 
         className="prose prose-lg max-w-none"
-        dangerouslySetInnerHTML={{ __html: post.content }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(post.content) }}
       />
     </article>
   );

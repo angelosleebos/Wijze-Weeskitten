@@ -2,11 +2,29 @@ import { NextRequest, NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
+import { generateCsrfToken } from '@/lib/csrf';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { username, password } = body;
+
+    // Rate limiting: 5 attempts per minute per username
+    const rateLimitResult = checkRateLimit(`login:${username}`, {
+      maxAttempts: 5,
+      windowMs: 60000, // 1 minute
+    });
+
+    if (!rateLimitResult.allowed) {
+      return NextResponse.json(
+        { error: 'Te veel login pogingen. Probeer het over een minuut opnieuw.' },
+        { 
+          status: 429,
+          headers: getRateLimitHeaders(rateLimitResult),
+        }
+      );
+    }
 
     // Find admin user
     const result = await pool.query(
@@ -44,13 +62,19 @@ export async function POST(request: NextRequest) {
       { expiresIn: '7d' }
     );
 
+    // Generate CSRF token
+    const csrfToken = generateCsrfToken(admin.id);
+
     return NextResponse.json({
       token,
+      csrfToken,
       admin: {
         id: admin.id,
         username: admin.username,
         email: admin.email,
       },
+    }, {
+      headers: getRateLimitHeaders(rateLimitResult),
     });
   } catch (error) {
     console.error('Error during login:', error);

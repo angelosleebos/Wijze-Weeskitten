@@ -2,6 +2,7 @@
 
 export function getAuthHeaders(): HeadersInit {
   const token = localStorage.getItem('admin_token');
+  const csrfToken = localStorage.getItem('csrf_token');
   
   if (!token) {
     return {
@@ -9,10 +10,16 @@ export function getAuthHeaders(): HeadersInit {
     };
   }
   
-  return {
+  const headers: HeadersInit = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
   };
+  
+  if (csrfToken) {
+    headers['X-CSRF-Token'] = csrfToken;
+  }
+  
+  return headers;
 }
 
 export async function authenticatedFetch(
@@ -21,11 +28,20 @@ export async function authenticatedFetch(
 ): Promise<Response> {
   const headers = getAuthHeaders();
   
-  return fetch(url, {
+  const response = await fetch(url, {
     ...options,
     headers: {
       ...headers,
       ...options.headers,
     },
   });
+  
+  // Handle unauthorized responses
+  if (response.status === 401) {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('csrf_token');
+    window.location.href = '/admin';
+  }
+  
+  return response;
 }

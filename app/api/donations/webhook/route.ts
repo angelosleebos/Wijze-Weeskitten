@@ -22,9 +22,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get payment status from Mollie
+    // Verify the webhook is from Mollie by fetching payment status
+    // Mollie recommends fetching payment details rather than trusting webhook data
     const mollieClient = getMollieClient();
-    const payment = await mollieClient.payments.get(paymentId);
+    
+    let payment;
+    try {
+      payment = await mollieClient.payments.get(paymentId);
+    } catch (error) {
+      console.error('Invalid payment ID from webhook:', error);
+      return NextResponse.json(
+        { error: 'Invalid payment ID' },
+        { status: 400 }
+      );
+    }
 
     // Update donation status in database
     const updateResult = await pool.query(

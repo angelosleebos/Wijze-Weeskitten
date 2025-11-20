@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import jwt from 'jsonwebtoken';
+import { requireCsrfToken } from './csrf';
 
 export interface AuthUser {
   id: number;
@@ -34,11 +35,16 @@ export function getAuthUser(request: NextRequest): AuthUser | null {
   }
 }
 
-export function requireAuth(request: NextRequest): AuthUser {
+export function requireAuth(request: NextRequest, checkCsrf: boolean = false): AuthUser {
   const user = getAuthUser(request);
   
   if (!user) {
     throw new Error('Unauthorized');
+  }
+  
+  // Check CSRF token for state-changing operations
+  if (checkCsrf) {
+    requireCsrfToken(request, user.id);
   }
   
   return user;

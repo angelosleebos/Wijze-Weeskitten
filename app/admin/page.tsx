@@ -32,8 +32,11 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'Login mislukt');
       }
 
-      // Store token
+      // Store tokens
       localStorage.setItem('admin_token', data.token);
+      if (data.csrfToken) {
+        localStorage.setItem('csrf_token', data.csrfToken);
+      }
       router.push('/admin/dashboard');
     } catch (err: any) {
       setError(err.message);
