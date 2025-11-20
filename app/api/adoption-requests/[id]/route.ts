@@ -58,22 +58,59 @@ export async function PUT(
       );
     }
     
-    const result = await pool.query(
-      `UPDATE adoption_requests 
-       SET status = $1, admin_notes = $2, updated_at = CURRENT_TIMESTAMP
-       WHERE id = $3
-       RETURNING *`,
-      [status, admin_notes, id]
-    );
+    // Start a transaction to update both the request and the cat status
+    const client = await pool.connect();
     
-    if (result.rows.length === 0) {
-      return NextResponse.json(
-        { error: 'Adoption request not found' },
-        { status: 404 }
+    try {
+      await client.query('BEGIN');
+      
+      // Update the adoption request
+      const result = await client.query(
+        `UPDATE adoption_requests 
+         SET status = $1, admin_notes = $2, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $3
+         RETURNING *`,
+        [status, admin_notes, id]
       );
+      
+      if (result.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return NextResponse.json(
+          { error: 'Adoption request not found' },
+          { status: 404 }
+        );
+      }
+      
+      const adoptionRequest = result.rows[0];
+      
+      // If status is approved or completed, mark the cat as adopted
+      if (status === 'approved' || status === 'completed') {
+        await client.query(
+          `UPDATE cats 
+           SET status = 'adopted'
+           WHERE id = $1`,
+          [adoptionRequest.cat_id]
+        );
+      }
+      // If status is rejected, mark the cat as available again
+      else if (status === 'rejected') {
+        await client.query(
+          `UPDATE cats 
+           SET status = 'available'
+           WHERE id = $1`,
+          [adoptionRequest.cat_id]
+        );
+      }
+      
+      await client.query('COMMIT');
+      
+      return NextResponse.json({ request: adoptionRequest });
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      client.release();
     }
-    
-    return NextResponse.json({ request: result.rows[0] });
   } catch (error: any) {
     console.error('Error updating adoption request:', error);
     if (error.message === 'Unauthorized' || error.message === 'Invalid token') {

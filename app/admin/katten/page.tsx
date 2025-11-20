@@ -28,7 +28,8 @@ export default function CatsAdmin() {
 
   const fetchCats = async () => {
     try {
-      const res = await fetch('/api/cats');
+      // Admin should see all cats, including adopted ones
+      const res = await fetch('/api/cats?adopted=true');
       const data = await res.json();
       setCats(data.cats || []);
     } catch (error) {
