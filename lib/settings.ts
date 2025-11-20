@@ -10,6 +10,13 @@ export interface SiteSettings {
   donation_account: string;
   primary_color: string;
   hero_image: string;
+  smtp_host: string;
+  smtp_port: string;
+  smtp_secure: string;
+  smtp_user: string;
+  smtp_pass: string;
+  smtp_from: string;
+  smtp_from_name: string;
 }
 
 const defaultSettings: SiteSettings = {
@@ -22,6 +29,13 @@ const defaultSettings: SiteSettings = {
   donation_account: '',
   primary_color: '#ee6fa0',
   hero_image: '/images/hero-cats.jpg',
+  smtp_host: process.env.SMTP_HOST || 'localhost',
+  smtp_port: process.env.SMTP_PORT || '1025',
+  smtp_secure: process.env.SMTP_SECURE || 'false',
+  smtp_user: process.env.SMTP_USER || '',
+  smtp_pass: process.env.SMTP_PASS || '',
+  smtp_from: process.env.SMTP_FROM || 'noreply@wijzeweeskitten.nl',
+  smtp_from_name: 'Stichting het Wijze Weeskitten',
 };
 
 export async function getSettings(): Promise<SiteSettings> {

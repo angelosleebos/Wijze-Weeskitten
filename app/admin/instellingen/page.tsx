@@ -19,6 +19,13 @@ interface Settings {
   donation_account: string;
   primary_color: string;
   hero_image: string;
+  smtp_host: string;
+  smtp_port: string;
+  smtp_secure: string;
+  smtp_user: string;
+  smtp_pass: string;
+  smtp_from: string;
+  smtp_from_name: string;
 }
 
 export default function SettingsAdmin() {
@@ -31,11 +38,20 @@ export default function SettingsAdmin() {
     hero_subtitle: '',
     donation_account: '',
     primary_color: '#ee6fa0',
-    hero_image: '/images/hero-cats.jpg'
+    hero_image: '/images/hero-cats.jpg',
+    smtp_host: 'mailhog',
+    smtp_port: '1025',
+    smtp_secure: 'false',
+    smtp_user: '',
+    smtp_pass: '',
+    smtp_from: 'noreply@wijzeweeskitten.nl',
+    smtp_from_name: 'Stichting het Wijze Weeskitten'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [testingEmail, setTestingEmail] = useState(false);
+  const [testEmailAddress, setTestEmailAddress] = useState('');
 
   useEffect(() => {
     fetchSettings();
@@ -58,7 +74,14 @@ export default function SettingsAdmin() {
         hero_subtitle: settingsObj.hero_subtitle || '',
         donation_account: settingsObj.donation_account || '',
         primary_color: settingsObj.primary_color || '#ee6fa0',
-        hero_image: settingsObj.hero_image || '/images/hero-cats.jpg'
+        hero_image: settingsObj.hero_image || '/images/hero-cats.jpg',
+        smtp_host: settingsObj.smtp_host || 'mailhog',
+        smtp_port: settingsObj.smtp_port || '1025',
+        smtp_secure: settingsObj.smtp_secure || 'false',
+        smtp_user: settingsObj.smtp_user || '',
+        smtp_pass: settingsObj.smtp_pass || '',
+        smtp_from: settingsObj.smtp_from || 'noreply@wijzeweeskitten.nl',
+        smtp_from_name: settingsObj.smtp_from_name || 'Stichting het Wijze Weeskitten'
       });
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -97,6 +120,66 @@ export default function SettingsAdmin() {
 
   const handleChange = (key: keyof Settings, value: string) => {
     setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleTestEmail = async () => {
+    if (!testEmailAddress) {
+      setMessage('Vul een e-mail adres in voor de test');
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+
+    setTestingEmail(true);
+    setMessage('');
+
+    try {
+      // First save settings
+      await handleSave();
+      
+      // Then test connection
+      const testRes = await authenticatedFetch('/api/email/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'test-connection'
+        })
+      });
+      
+      const testData = await testRes.json();
+      
+      if (!testData.success) {
+        setMessage(`❌ ${testData.message}`);
+        setTestingEmail(false);
+        setTimeout(() => setMessage(''), 5000);
+        return;
+      }
+      
+      // Send test email
+      const sendRes = await authenticatedFetch('/api/email/test', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          action: 'send-test',
+          to: testEmailAddress
+        })
+      });
+      
+      const sendData = await sendRes.json();
+      
+      if (sendData.success) {
+        setMessage('✅ Test e-mail succesvol verzonden! Check je inbox (of Mailhog op http://localhost:8026)');
+      } else {
+        setMessage(`❌ ${sendData.error || 'Fout bij verzenden'}`);
+      }
+      
+      setTimeout(() => setMessage(''), 5000);
+    } catch (error) {
+      setMessage('❌ Fout bij testen e-mail');
+      console.error('Error testing email:', error);
+      setTimeout(() => setMessage(''), 3000);
+    } finally {
+      setTestingEmail(false);
+    }
   };
 
   const presetColors = [
@@ -329,6 +412,169 @@ export default function SettingsAdmin() {
                   <p className="text-sm text-gray-600">
                     Mollie API key wordt beheerd via environment variabelen (.env bestand).
                     Voor wijzigingen, pas MOLLIE_API_KEY aan en herstart de applicatie.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* SMTP E-mail Instellingen */}
+            <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary-500">mail</span>
+                SMTP E-mail Instellingen
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Host
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.smtp_host}
+                    onChange={(e) => handleChange('smtp_host', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="smtp.gmail.com"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Voor testing: mailhog (in Docker)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Port
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.smtp_port}
+                    onChange={(e) => handleChange('smtp_port', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="587"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Standaard: 587 (TLS) of 465 (SSL)
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Beveiligde verbinding (SSL/TLS)
+                  </label>
+                  <select
+                    value={settings.smtp_secure}
+                    onChange={(e) => handleChange('smtp_secure', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                  >
+                    <option value="false">Nee (STARTTLS)</option>
+                    <option value="true">Ja (SSL/TLS)</option>
+                  </select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Port 465 vereist SSL/TLS
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Afzender E-mail
+                  </label>
+                  <input
+                    type="email"
+                    value={settings.smtp_from}
+                    onChange={(e) => handleChange('smtp_from', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="noreply@wijzeweeskitten.nl"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Afzender Naam
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.smtp_from_name}
+                    onChange={(e) => handleChange('smtp_from_name', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="Stichting het Wijze Weeskitten"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Gebruikersnaam
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.smtp_user}
+                    onChange={(e) => handleChange('smtp_user', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="(optioneel)"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Laat leeg als geen authenticatie nodig is
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    SMTP Wachtwoord
+                  </label>
+                  <input
+                    type="password"
+                    value={settings.smtp_pass}
+                    onChange={(e) => handleChange('smtp_pass', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500"
+                    placeholder="(optioneel)"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Voor Gmail: gebruik App Password
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 bg-blue-50 rounded-lg p-4">
+                <h3 className="font-semibold mb-2 flex items-center gap-2 text-blue-900">
+                  <span className="material-symbols-outlined text-sm">info</span>
+                  Mailhog voor Testing
+                </h3>
+                <p className="text-sm text-blue-800 mb-4">
+                  In Docker is Mailhog beschikbaar op <strong>http://localhost:8026</strong> om test e-mails te bekijken.
+                  Gebruik host: <code className="bg-blue-100 px-2 py-1 rounded">mailhog</code>, 
+                  port: <code className="bg-blue-100 px-2 py-1 rounded">1025</code>, 
+                  secure: <code className="bg-blue-100 px-2 py-1 rounded">false</code>
+                </p>
+                
+                {/* Test Email Form */}
+                <div className="mt-4 pt-4 border-t border-blue-200">
+                  <h4 className="font-semibold text-blue-900 mb-2">Test E-mail Verzenden</h4>
+                  <div className="flex gap-2">
+                    <input
+                      type="email"
+                      value={testEmailAddress}
+                      onChange={(e) => setTestEmailAddress(e.target.value)}
+                      className="flex-1 px-4 py-2 border border-blue-200 rounded-lg focus:ring-2 focus:ring-blue-500"
+                      placeholder="test@example.com"
+                    />
+                    <button
+                      onClick={handleTestEmail}
+                      disabled={testingEmail || saving}
+                      className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 flex items-center gap-2"
+                    >
+                      {testingEmail ? (
+                        <>
+                          <span className="material-symbols-outlined animate-spin text-sm">hourglass_empty</span>
+                          Testen...
+                        </>
+                      ) : (
+                        <>
+                          <span className="material-symbols-outlined text-sm">send</span>
+                          Test Verzenden
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <p className="text-xs text-blue-700 mt-2">
+                    Dit slaat eerst je instellingen op en verstuurt daarna een test e-mail.
                   </p>
                 </div>
               </div>

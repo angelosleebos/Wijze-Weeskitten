@@ -86,4 +86,11 @@ INSERT INTO site_settings (key, value) VALUES
   ('donation_goal', '5000'),
   ('hero_title', 'Stichting het Wijze Weeskitten'),
   ('hero_subtitle', 'Onvoorwaardelijke hulp aan katten in noodsituaties'),
-  ('donation_account', 'NL10 INGB 0005 9680 56');
+  ('donation_account', 'NL10 INGB 0005 9680 56'),
+  ('smtp_host', 'mailhog'),
+  ('smtp_port', '1025'),
+  ('smtp_secure', 'false'),
+  ('smtp_user', ''),
+  ('smtp_pass', ''),
+  ('smtp_from', 'noreply@wijzeweeskitten.nl'),
+  ('smtp_from_name', 'Stichting het Wijze Weeskitten');

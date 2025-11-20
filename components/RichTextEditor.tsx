@@ -4,7 +4,7 @@ import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 interface RichTextEditorProps {
   content: string;
@@ -13,6 +13,11 @@ interface RichTextEditorProps {
 }
 
 export default function RichTextEditor({ content, onChange, placeholder }: RichTextEditorProps) {
+  const [showImageDialog, setShowImageDialog] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imageUrl, setImageUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadMethod, setUploadMethod] = useState<'upload' | 'url'>('upload');
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -58,9 +63,44 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
   };
 
   const addImage = () => {
-    const url = window.prompt('Afbeelding URL:');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+    setShowImageDialog(true);
+    setImageFile(null);
+    setImageUrl('');
+    setUploadMethod('upload');
+  };
+
+  const handleImageUpload = async () => {
+    if (uploadMethod === 'url' && imageUrl) {
+      editor?.chain().focus().setImage({ src: imageUrl }).run();
+      setShowImageDialog(false);
+      setImageUrl('');
+      return;
+    }
+
+    if (uploadMethod === 'upload' && imageFile) {
+      setUploading(true);
+      try {
+        const formData = new FormData();
+        formData.append('file', imageFile);
+        formData.append('type', 'blog');
+
+        const response = await fetch('/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) throw new Error('Upload mislukt');
+
+        const data = await response.json();
+        editor?.chain().focus().setImage({ src: data.url }).run();
+        setShowImageDialog(false);
+        setImageFile(null);
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Fout bij uploaden van afbeelding');
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -204,6 +244,104 @@ export default function RichTextEditor({ content, onChange, placeholder }: RichT
       {!content && placeholder && (
         <div className="absolute top-14 left-4 text-gray-400 pointer-events-none">
           {placeholder}
+        </div>
+      )}
+
+      {/* Image Upload Dialog */}
+      {showImageDialog && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg max-w-md w-full p-6">
+            <h3 className="text-lg font-bold mb-4">Afbeelding Toevoegen</h3>
+            
+            {/* Upload Method Tabs */}
+            <div className="flex gap-2 mb-4">
+              <button
+                type="button"
+                onClick={() => setUploadMethod('upload')}
+                className={`flex-1 px-4 py-2 rounded ${
+                  uploadMethod === 'upload'
+                    ? 'bg-primary-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">upload</span>
+                Uploaden
+              </button>
+              <button
+                type="button"
+                onClick={() => setUploadMethod('url')}
+                className={`flex-1 px-4 py-2 rounded ${
+                  uploadMethod === 'url'
+                    ? 'bg-primary-500 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                <span className="material-symbols-outlined text-sm">link</span>
+                URL
+              </button>
+            </div>
+
+            {uploadMethod === 'upload' ? (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Kies een afbeelding
+                </label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                />
+                {imageFile && (
+                  <p className="text-sm text-gray-600 mt-2">
+                    Geselecteerd: {imageFile.name}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Afbeelding URL
+                </label>
+                <input
+                  type="text"
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-3 mt-6">
+              <button
+                type="button"
+                onClick={() => setShowImageDialog(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+                disabled={uploading}
+              >
+                Annuleren
+              </button>
+              <button
+                type="button"
+                onClick={handleImageUpload}
+                disabled={uploading || (uploadMethod === 'upload' && !imageFile) || (uploadMethod === 'url' && !imageUrl)}
+                className="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 flex items-center justify-center gap-2"
+              >
+                {uploading ? (
+                  <>
+                    <span className="material-symbols-outlined animate-spin text-sm">hourglass_empty</span>
+                    Uploaden...
+                  </>
+                ) : (
+                  <>
+                    <span className="material-symbols-outlined text-sm">check</span>
+                    Toevoegen
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

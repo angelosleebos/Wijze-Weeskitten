@@ -76,6 +76,12 @@ export default async function RootLayout({
             .hover\\:text-primary-700:hover { color: rgb(var(--color-primary-rgb)); filter: brightness(0.8); }
             .border-primary-500 { border-color: rgb(var(--color-primary-rgb)) !important; }
             .focus\\:ring-primary-500:focus { --tw-ring-color: rgb(var(--color-primary-rgb)) !important; }
+            
+            /* Override hard-coded pink colors with primary */
+            .bg-pink-500, .bg-pink-600 { background-color: rgb(var(--color-primary-rgb)) !important; }
+            .hover\\:bg-pink-600:hover, .hover\\:bg-pink-700:hover { background-color: rgb(var(--color-primary-rgb)); filter: brightness(0.9); }
+            .text-pink-500, .text-pink-600 { color: rgb(var(--color-primary-rgb)) !important; }
+            .focus\\:ring-pink-500:focus { --tw-ring-color: rgb(var(--color-primary-rgb)) !important; }
           `
         }} />
       </head>
