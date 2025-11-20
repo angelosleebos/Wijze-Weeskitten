@@ -4,16 +4,16 @@ Een moderne website voor een kattenstichting met CMS, donatiemogelijkheid via iD
 
 ## Features
 
--  **Katten overzicht** - Toon katten die een thuis zoeken
-- 📝 **Blog** - Deel verhalen en nieuws
-- 💰 **Donaties via iDEAL** - Veilig doneren met Mollie
-- 👥 **Contact pagina** - Overzicht van vrijwilligers
-- 🔧 **CMS** - Beheer alle content via admin panel
-- 🐳 **Docker** - Volledige Docker setup met PostgreSQL 16
+- **Katten overzicht** - Toon katten die een thuis zoeken
+- **Blog** - Deel verhalen en nieuws
+- **Donaties via iDEAL** - Veilig doneren met Mollie
+- **Contact pagina** - Overzicht van vrijwilligers
+- **CMS** - Beheer alle content via admin panel
+- **Docker** - Volledige Docker setup met PostgreSQL 16
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14, React 18, Tailwind CSS
+- **Frontend**: Next.js 16, React 19, Tailwind CSS 3.3
 - **Backend**: Next.js API Routes
 - **Database**: PostgreSQL 16
 - **Payments**: Mollie (iDEAL)
