@@ -7,9 +7,19 @@ export async function GET() {
   try {
     const result = await pool.query('SELECT * FROM site_settings');
     
+    // Sensitive keys that should never be exposed to public
+    const SENSITIVE_KEYS = [
+      'smtp_pass',
+      'smtp_user', 
+      'recaptcha_secret_key'
+    ];
+    
     const settings: Record<string, string> = {};
     result.rows.forEach(row => {
-      settings[row.key] = row.value;
+      // Filter out sensitive settings from public API
+      if (!SENSITIVE_KEYS.includes(row.key)) {
+        settings[row.key] = row.value;
+      }
     });
     
     return NextResponse.json({ settings });

@@ -65,7 +65,8 @@ export default function SettingsAdmin() {
 
   const fetchSettings = async () => {
     try {
-      const res = await fetch('/api/settings');
+      // Use admin endpoint for sensitive settings
+      const res = await authenticatedFetch('/api/settings/admin');
       const data = await res.json();
       
       // API returns an object, not an array

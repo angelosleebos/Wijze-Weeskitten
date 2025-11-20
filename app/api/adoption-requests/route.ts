@@ -4,6 +4,8 @@ import { requireAuth } from '@/lib/auth';
 import { sendEmail } from '@/lib/mailer';
 import { getSettings } from '@/lib/settings';
 import { verifyRecaptcha } from '@/lib/recaptcha';
+import { checkRateLimit, getRateLimitHeaders } from '@/lib/rate-limit';
+import { escapeHtml } from '@/lib/html-escape';
 
 // GET all adoption requests (admin only) or by email (visitor)
 export async function GET(request: NextRequest) {
@@ -12,6 +14,18 @@ export async function GET(request: NextRequest) {
     const email = searchParams.get('email');
     
     if (email) {
+      // Rate limit: 5 requests per minute per IP to prevent enumeration
+      const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+      const rateLimitKey = `adoption-requests-get:${clientIp}`;
+      const rateLimitResult = checkRateLimit(rateLimitKey, { maxAttempts: 5, windowMs: 60000 });
+      
+      if (!rateLimitResult.allowed) {
+        return NextResponse.json(
+          { error: 'Te veel verzoeken. Probeer het later opnieuw.' },
+          { status: 429, headers: getRateLimitHeaders(rateLimitResult) }
+        );
+      }
+      
       // Public endpoint: get requests by email
       const result = await pool.query(
         `SELECT ar.*, c.name as cat_name, c.image_url as cat_image 
@@ -21,7 +35,10 @@ export async function GET(request: NextRequest) {
          ORDER BY ar.created_at DESC`,
         [email]
       );
-      return NextResponse.json({ requests: result.rows });
+      return NextResponse.json(
+        { requests: result.rows },
+        { headers: getRateLimitHeaders(rateLimitResult) }
+      );
     }
     
     // Admin endpoint: get all requests
@@ -87,9 +104,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify reCAPTCHA if configured
+    // Spam protection: reCAPTCHA or rate limiting
     const settings = await getSettings();
-    if (settings.recaptcha_secret_key && recaptcha_token) {
+    
+    if (settings.recaptcha_secret_key) {
+      // reCAPTCHA is configured - verify token
+      if (!recaptcha_token) {
+        return NextResponse.json(
+          { error: 'Spam verificatie vereist. Herlaad de pagina en probeer opnieuw.' },
+          { status: 400 }
+        );
+      }
+      
       const recaptchaResult = await verifyRecaptcha(recaptcha_token, settings.recaptcha_secret_key);
       
       if (!recaptchaResult.success) {
@@ -100,9 +126,21 @@ export async function POST(request: NextRequest) {
         );
       }
       
-      // Log score for monitoring (optional)
+      // Log score for monitoring
       if (recaptchaResult.score !== undefined) {
         console.log(`reCAPTCHA score for adoption request: ${recaptchaResult.score}`);
+      }
+    } else {
+      // Fallback: Rate limiting (3 requests per hour per IP)
+      const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown';
+      const rateLimitKey = `adoption-requests-post:${clientIp}`;
+      const rateLimitResult = checkRateLimit(rateLimitKey, { maxAttempts: 3, windowMs: 3600000 });
+      
+      if (!rateLimitResult.allowed) {
+        return NextResponse.json(
+          { error: 'Te veel aanvragen. Probeer het over een uur opnieuw.' },
+          { status: 429, headers: getRateLimitHeaders(rateLimitResult) }
+        );
       }
     }
 
@@ -141,31 +179,31 @@ export async function POST(request: NextRequest) {
       
       await sendEmail({
         to: settings.contact_email,
-        subject: `Nieuwe adoptie-aanvraag: ${catName.rows[0].name}`,
+        subject: `Nieuwe adoptie-aanvraag: ${escapeHtml(catName.rows[0].name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #ee6fa0;">Nieuwe Adoptie-aanvraag</h1>
             
             <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
-              <h2 style="margin-top: 0;">Kat: ${catName.rows[0].name}</h2>
-              <p><strong>Aanvrager:</strong> ${name}</p>
-              <p><strong>E-mail:</strong> ${email}</p>
-              <p><strong>Telefoon:</strong> ${phone || 'Niet opgegeven'}</p>
-              <p><strong>Adres:</strong> ${address || ''} ${postal_code || ''} ${city || ''}</p>
+              <h2 style="margin-top: 0;">Kat: ${escapeHtml(catName.rows[0].name)}</h2>
+              <p><strong>Aanvrager:</strong> ${escapeHtml(name)}</p>
+              <p><strong>E-mail:</strong> ${escapeHtml(email)}</p>
+              <p><strong>Telefoon:</strong> ${escapeHtml(phone) || 'Niet opgegeven'}</p>
+              <p><strong>Adres:</strong> ${escapeHtml(address)} ${escapeHtml(postal_code)} ${escapeHtml(city)}</p>
             </div>
             
             <h3>Woonsituatie</h3>
             <ul>
-              <li><strong>Type huishouden:</strong> ${household_type || 'Niet opgegeven'}</li>
+              <li><strong>Type huishouden:</strong> ${escapeHtml(household_type) || 'Niet opgegeven'}</li>
               <li><strong>Tuin:</strong> ${has_garden ? 'Ja' : 'Nee'}</li>
-              <li><strong>Andere huisdieren:</strong> ${has_other_pets ? `Ja - ${other_pets_description}` : 'Nee'}</li>
-              <li><strong>Kinderen:</strong> ${has_children ? `Ja - ${children_ages}` : 'Nee'}</li>
+              <li><strong>Andere huisdieren:</strong> ${has_other_pets ? `Ja - ${escapeHtml(other_pets_description)}` : 'Nee'}</li>
+              <li><strong>Kinderen:</strong> ${has_children ? `Ja - ${escapeHtml(children_ages)}` : 'Nee'}</li>
             </ul>
             
             <h3>Ervaring & Motivatie</h3>
             <p><strong>Eerdere ervaring:</strong> ${cat_experience ? 'Ja' : 'Nee'}</p>
             <p><strong>Motivatie:</strong></p>
-            <p style="white-space: pre-wrap; background: #f5f5f5; padding: 15px; border-radius: 8px;">${motivation}</p>
+            <p style="white-space: pre-wrap; background: #f5f5f5; padding: 15px; border-radius: 8px;">${escapeHtml(motivation)}</p>
             
             <p style="margin-top: 30px;">
               <a href="${process.env.NEXT_PUBLIC_API_URL}/admin/adoptie-aanvragen" 
@@ -208,14 +246,14 @@ Aanvraag ID: #${newRequest.id}
       // Send confirmation email to applicant
       await sendEmail({
         to: email,
-        subject: `Bevestiging adoptie-aanvraag: ${catName.rows[0].name}`,
+        subject: `Bevestiging adoptie-aanvraag: ${escapeHtml(catName.rows[0].name)}`,
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h1 style="color: #ee6fa0;">Bedankt voor je adoptie-aanvraag!</h1>
             
-            <p>Beste ${name},</p>
+            <p>Beste ${escapeHtml(name)},</p>
             
-            <p>We hebben je aanvraag voor de adoptie van <strong>${catName.rows[0].name}</strong> ontvangen.</p>
+            <p>We hebben je aanvraag voor de adoptie van <strong>${escapeHtml(catName.rows[0].name)}</strong> ontvangen.</p>
             
             <div style="background: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ee6fa0;">
               <h3 style="margin-top: 0;">Wat gebeurt er nu?</h3>
