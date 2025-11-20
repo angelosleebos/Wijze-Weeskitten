@@ -5,12 +5,6 @@ import path from 'path';
 import sharp from 'sharp';
 import { requireAuth } from '@/lib/auth';
 
-export const config = {
-  api: {
-    bodyParser: false,
-  },
-};
-
 async function processImage(buffer: Buffer, maxWidth: number = 1200): Promise<Buffer> {
   return await sharp(buffer)
     .resize(maxWidth, null, {
