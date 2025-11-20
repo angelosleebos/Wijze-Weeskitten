@@ -93,4 +93,7 @@ INSERT INTO site_settings (key, value) VALUES
   ('smtp_user', ''),
   ('smtp_pass', ''),
   ('smtp_from', 'noreply@wijzeweeskitten.nl'),
-  ('smtp_from_name', 'Stichting het Wijze Weeskitten');
+  ('smtp_from_name', 'Stichting het Wijze Weeskitten'),
+  ('recaptcha_site_key', ''),
+  ('recaptcha_secret_key', ''),
+  ('google_analytics_id', '');

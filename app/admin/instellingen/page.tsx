@@ -26,6 +26,9 @@ interface Settings {
   smtp_pass: string;
   smtp_from: string;
   smtp_from_name: string;
+  recaptcha_site_key: string;
+  recaptcha_secret_key: string;
+  google_analytics_id: string;
 }
 
 export default function SettingsAdmin() {
@@ -45,7 +48,10 @@ export default function SettingsAdmin() {
     smtp_user: '',
     smtp_pass: '',
     smtp_from: 'noreply@wijzeweeskitten.nl',
-    smtp_from_name: 'Stichting het Wijze Weeskitten'
+    smtp_from_name: 'Stichting het Wijze Weeskitten',
+    recaptcha_site_key: '',
+    recaptcha_secret_key: '',
+    google_analytics_id: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -81,7 +87,10 @@ export default function SettingsAdmin() {
         smtp_user: settingsObj.smtp_user || '',
         smtp_pass: settingsObj.smtp_pass || '',
         smtp_from: settingsObj.smtp_from || 'noreply@wijzeweeskitten.nl',
-        smtp_from_name: settingsObj.smtp_from_name || 'Stichting het Wijze Weeskitten'
+        smtp_from_name: settingsObj.smtp_from_name || 'Stichting het Wijze Weeskitten',
+        recaptcha_site_key: settingsObj.recaptcha_site_key || '',
+        recaptcha_secret_key: settingsObj.recaptcha_secret_key || '',
+        google_analytics_id: settingsObj.google_analytics_id || ''
       });
     } catch (error) {
       console.error('Error fetching settings:', error);
@@ -575,6 +584,110 @@ export default function SettingsAdmin() {
                   </div>
                   <p className="text-xs text-blue-700 mt-2">
                     Dit slaat eerst je instellingen op en verstuurt daarna een test e-mail.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* reCAPTCHA Spam Protection */}
+            <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary-500">shield</span>
+                reCAPTCHA v3 Spam Bescherming
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    reCAPTCHA Site Key
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.recaptcha_site_key}
+                    onChange={(e) => handleChange('recaptcha_site_key', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-mono text-sm"
+                    placeholder="6LdxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxL"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Publieke sleutel voor frontend gebruik
+                  </p>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    reCAPTCHA Secret Key
+                  </label>
+                  <input
+                    type="password"
+                    value={settings.recaptcha_secret_key}
+                    onChange={(e) => handleChange('recaptcha_secret_key', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-mono text-sm"
+                    placeholder="6LdxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxL"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Geheime sleutel voor server-side verificatie
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 bg-yellow-50 rounded-lg p-4">
+                <h3 className="font-semibold mb-2 flex items-center gap-2 text-yellow-900">
+                  <span className="material-symbols-outlined text-sm">info</span>
+                  reCAPTCHA v3 Instellen
+                </h3>
+                <div className="text-sm text-yellow-800 space-y-2">
+                  <p>
+                    1. Ga naar <a href="https://www.google.com/recaptcha/admin" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google reCAPTCHA Admin</a>
+                  </p>
+                  <p>2. Registreer een nieuwe site met reCAPTCHA v3</p>
+                  <p>3. Voeg je domein toe (bijv. wijzeweeskitten.nl)</p>
+                  <p>4. Kopieer de Site Key en Secret Key hierboven</p>
+                  <p className="mt-3">
+                    <strong>Let op:</strong> reCAPTCHA v3 werkt onzichtbaar op de achtergrond en geeft een score (0-1). 
+                    Scores boven 0.5 worden als menselijk beschouwd.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Google Analytics */}
+            <div className="bg-white rounded-lg shadow-lg p-6 lg:col-span-2">
+              <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+                <span className="material-symbols-outlined text-primary-500">analytics</span>
+                Google Analytics 4 Tracking
+              </h2>
+              <div className="grid grid-cols-1 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Google Analytics Measurement ID
+                  </label>
+                  <input
+                    type="text"
+                    value={settings.google_analytics_id}
+                    onChange={(e) => handleChange('google_analytics_id', e.target.value)}
+                    className="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-primary-500 font-mono"
+                    placeholder="G-XXXXXXXXXX"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Voorbeeld: G-12345ABCDE
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-6 bg-purple-50 rounded-lg p-4">
+                <h3 className="font-semibold mb-2 flex items-center gap-2 text-purple-900">
+                  <span className="material-symbols-outlined text-sm">info</span>
+                  Google Analytics Instellen
+                </h3>
+                <div className="text-sm text-purple-800 space-y-2">
+                  <p>
+                    1. Ga naar <a href="https://analytics.google.com/" target="_blank" rel="noopener noreferrer" className="underline font-semibold">Google Analytics</a>
+                  </p>
+                  <p>2. Maak een nieuwe GA4 property aan</p>
+                  <p>3. Navigeer naar Admin → Data Streams → Web</p>
+                  <p>4. Kopieer het Measurement ID (begint met G-)</p>
+                  <p>5. Plak het ID hierboven</p>
+                  <p className="mt-3">
+                    <strong>Privacy:</strong> Vergeet niet een cookiemelding en privacyverklaring toe te voegen volgens de AVG/GDPR wetgeving.
                   </p>
                 </div>
               </div>

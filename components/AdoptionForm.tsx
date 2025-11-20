@@ -51,10 +51,30 @@ export default function AdoptionForm({ cat, onClose }: AdoptionFormProps) {
     setLoading(true);
 
     try {
+      // Get reCAPTCHA token if available
+      let recaptchaToken = '';
+      if (typeof window !== 'undefined' && (window as any).grecaptcha) {
+        const siteKey = document.querySelector('script[src*="google.com/recaptcha"]')
+          ?.getAttribute('src')
+          ?.match(/render=([^&]+)/)?.[1];
+        
+        if (siteKey) {
+          try {
+            recaptchaToken = await (window as any).grecaptcha.execute(siteKey, { action: 'adoption_request' });
+          } catch (recaptchaError) {
+            console.warn('reCAPTCHA execution failed:', recaptchaError);
+            // Continue without reCAPTCHA if it fails
+          }
+        }
+      }
+
       const response = await fetch('/api/adoption-requests', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ 
+          ...formData,
+          recaptcha_token: recaptchaToken 
+        }),
       });
 
       if (!response.ok) {

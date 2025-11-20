@@ -17,6 +17,9 @@ export interface SiteSettings {
   smtp_pass: string;
   smtp_from: string;
   smtp_from_name: string;
+  recaptcha_site_key: string;
+  recaptcha_secret_key: string;
+  google_analytics_id: string;
 }
 
 const defaultSettings: SiteSettings = {
@@ -36,6 +39,9 @@ const defaultSettings: SiteSettings = {
   smtp_pass: process.env.SMTP_PASS || '',
   smtp_from: process.env.SMTP_FROM || 'noreply@wijzeweeskitten.nl',
   smtp_from_name: 'Stichting het Wijze Weeskitten',
+  recaptcha_site_key: process.env.RECAPTCHA_SITE_KEY || '',
+  recaptcha_secret_key: process.env.RECAPTCHA_SECRET_KEY || '',
+  google_analytics_id: process.env.GOOGLE_ANALYTICS_ID || '',
 };
 
 export async function getSettings(): Promise<SiteSettings> {
