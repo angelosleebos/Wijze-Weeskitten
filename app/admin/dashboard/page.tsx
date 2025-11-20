@@ -31,7 +31,7 @@ export default function AdminDashboard() {
             href="/admin/katten"
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
           >
-            <div className="text-4xl mb-4">🐱</div>
+            <span className="material-symbols-outlined text-primary-500 text-5xl mb-4 block">pets</span>
             <h2 className="text-2xl font-bold mb-2">Katten Beheren</h2>
             <p className="text-gray-600">Voeg katten toe, bewerk of verwijder ze</p>
           </Link>
@@ -40,7 +40,7 @@ export default function AdminDashboard() {
             href="/admin/blog"
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
           >
-            <div className="text-4xl mb-4">📝</div>
+            <span className="material-symbols-outlined text-primary-500 text-5xl mb-4 block">article</span>
             <h2 className="text-2xl font-bold mb-2">Blog Beheren</h2>
             <p className="text-gray-600">Schrijf en publiceer blogposts</p>
           </Link>
@@ -49,7 +49,7 @@ export default function AdminDashboard() {
             href="/admin/vrijwilligers"
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
           >
-            <div className="text-4xl mb-4">👥</div>
+            <span className="material-symbols-outlined text-primary-500 text-5xl mb-4 block">group</span>
             <h2 className="text-2xl font-bold mb-2">Vrijwilligers Beheren</h2>
             <p className="text-gray-600">Beheer contactpersonen</p>
           </Link>
@@ -58,7 +58,7 @@ export default function AdminDashboard() {
             href="/admin/donaties"
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
           >
-            <div className="text-4xl mb-4">💰</div>
+            <span className="material-symbols-outlined text-primary-500 text-5xl mb-4 block">payments</span>
             <h2 className="text-2xl font-bold mb-2">Donaties</h2>
             <p className="text-gray-600">Bekijk alle donaties</p>
           </Link>
@@ -67,7 +67,7 @@ export default function AdminDashboard() {
             href="/admin/instellingen"
             className="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition"
           >
-            <div className="text-4xl mb-4">⚙️</div>
+            <span className="material-symbols-outlined text-primary-500 text-5xl mb-4 block">settings</span>
             <h2 className="text-2xl font-bold mb-2">Instellingen</h2>
             <p className="text-gray-600">Beheer website instellingen</p>
           </Link>

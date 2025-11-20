@@ -10,28 +10,34 @@ export default function Navigation() {
     <nav className="bg-white shadow-md">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          <Link href="/" className="text-2xl font-bold text-primary-600">
-            🐱 Wijze Weeskitten
+          <Link href="/" className="text-2xl font-bold text-primary-600 flex items-center gap-2">
+            <span className="material-symbols-outlined text-3xl">pets</span>
+            Wijze Weeskitten
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-primary-600 transition">
+          <div className="hidden md:flex space-x-8 items-center">
+            <Link href="/" className="text-gray-700 hover:text-primary-600 transition flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">home</span>
               Home
             </Link>
-            <Link href="/katten" className="text-gray-700 hover:text-primary-600 transition">
+            <Link href="/katten" className="text-gray-700 hover:text-primary-600 transition flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">pets</span>
               Katten
             </Link>
-            <Link href="/blog" className="text-gray-700 hover:text-primary-600 transition">
+            <Link href="/blog" className="text-gray-700 hover:text-primary-600 transition flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">article</span>
               Blog
             </Link>
-            <Link href="/contact" className="text-gray-700 hover:text-primary-600 transition">
+            <Link href="/contact" className="text-gray-700 hover:text-primary-600 transition flex items-center gap-1">
+              <span className="material-symbols-outlined text-sm">mail</span>
               Contact
             </Link>
             <Link 
               href="/donatie" 
-              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition"
+              className="bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition flex items-center gap-1"
             >
+              <span className="material-symbols-outlined text-sm">favorite</span>
               Doneer
             </Link>
           </div>
@@ -41,28 +47,31 @@ export default function Navigation() {
             className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
+            <span className="material-symbols-outlined">menu</span>
           </button>
         </div>
 
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <div className="md:hidden pb-4 space-y-2">
-            <Link href="/" className="block py-2 text-gray-700 hover:text-primary-600">
+            <Link href="/" className="flex items-center gap-2 py-2 text-gray-700 hover:text-primary-600">
+              <span className="material-symbols-outlined text-sm">home</span>
               Home
             </Link>
-            <Link href="/katten" className="block py-2 text-gray-700 hover:text-primary-600">
+            <Link href="/katten" className="flex items-center gap-2 py-2 text-gray-700 hover:text-primary-600">
+              <span className="material-symbols-outlined text-sm">pets</span>
               Katten
             </Link>
-            <Link href="/blog" className="block py-2 text-gray-700 hover:text-primary-600">
+            <Link href="/blog" className="flex items-center gap-2 py-2 text-gray-700 hover:text-primary-600">
+              <span className="material-symbols-outlined text-sm">article</span>
               Blog
             </Link>
-            <Link href="/contact" className="block py-2 text-gray-700 hover:text-primary-600">
+            <Link href="/contact" className="flex items-center gap-2 py-2 text-gray-700 hover:text-primary-600">
+              <span className="material-symbols-outlined text-sm">mail</span>
               Contact
             </Link>
-            <Link href="/donatie" className="block py-2 text-primary-600 font-semibold">
+            <Link href="/donatie" className="flex items-center gap-2 py-2 text-primary-600 font-semibold">
+              <span className="material-symbols-outlined text-sm">favorite</span>
               Doneer
             </Link>
           </div>

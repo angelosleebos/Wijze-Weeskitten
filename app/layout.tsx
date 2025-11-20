@@ -7,8 +7,8 @@ import Footer from '@/components/Footer'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'Kattenstichting - Help katten aan een nieuw thuis',
-  description: 'Samen maken we het verschil voor katten in nood',
+  title: 'Stichting het Wijze Weeskitten - Help katten in nood',
+  description: 'Onvoorwaardelijke hulp aan katten in noodsituaties',
 }
 
 export default function RootLayout({
@@ -18,6 +18,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="nl">
+      <head>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+      </head>
       <body className={inter.className}>
         <Navigation />
         <main className="min-h-screen">
