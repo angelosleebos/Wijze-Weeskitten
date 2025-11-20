@@ -46,10 +46,8 @@ export default function SettingsAdmin() {
       const res = await fetch('/api/settings');
       const data = await res.json();
       
-      const settingsObj: any = {};
-      data.settings?.forEach((s: Setting) => {
-        settingsObj[s.key] = s.value;
-      });
+      // API returns an object, not an array
+      const settingsObj = data.settings || {};
       
       setSettings({
         site_name: settingsObj.site_name || '',

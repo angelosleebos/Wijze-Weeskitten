@@ -172,6 +172,18 @@ MOLLIE_API_KEY=test_xxxxx
 ```
 4. Configureer webhook URL in Mollie dashboard naar je productie URL
 
+## Screenshots
+
+📸 Bekijk screenshots van alle features in [`/docs/screenshots/README.md`](./docs/screenshots/README.md)
+
+Belangrijkste features:
+- Admin dashboard met statistieken
+- Rich text editor (Tiptap) voor blog posts
+- Search & filters voor katten en blog
+- Adoptie aanvraag systeem
+- iDEAL donaties met Mollie
+- Security features (rate limiting, CSRF, XSS protection)
+
 ## Licentie
 
 MIT

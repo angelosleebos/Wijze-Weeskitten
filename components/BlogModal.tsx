@@ -28,7 +28,7 @@ export default function BlogModal({ post, onClose, onSave }: BlogModalProps) {
     excerpt: '',
     content: '',
     image_url: '',
-    published: false,
+    published: true,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');

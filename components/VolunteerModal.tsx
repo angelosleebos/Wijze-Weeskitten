@@ -54,10 +54,6 @@ export default function VolunteerModal({ volunteer, onClose, onSave }: Volunteer
       setError('Ongeldig e-mailadres');
       return;
     }
-    if (!formData.image_url) {
-      setError('Upload een foto');
-      return;
-    }
 
     setError('');
     setLoading(true);

@@ -79,15 +79,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         }}
       />
 
-      {post.image_url && (
-        <div className="h-96 bg-gray-200 rounded-lg overflow-hidden mb-8">
+      <div className="h-96 bg-gray-200 rounded-lg overflow-hidden mb-8 flex items-center justify-center">
+        {post.image_url ? (
           <img 
             src={post.image_url} 
             alt={post.title}
             className="w-full h-full object-cover"
           />
-        </div>
-      )}
+        ) : (
+          <span className="material-symbols-outlined text-gray-400" style={{ fontSize: '120px' }}>
+            article
+          </span>
+        )}
+      </div>
       
       <h1 className="text-5xl font-bold mb-4">{post.title}</h1>
       

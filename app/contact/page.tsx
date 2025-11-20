@@ -32,15 +32,19 @@ export default async function ContactPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
         {volunteers.map((volunteer: any) => (
           <div key={volunteer.id} className="bg-white rounded-lg shadow-lg p-6">
-            {volunteer.image_url && (
-              <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200">
+            <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200 flex items-center justify-center">
+              {volunteer.image_url ? (
                 <img 
                   src={volunteer.image_url} 
                   alt={volunteer.name}
                   className="w-full h-full object-cover"
                 />
-              </div>
-            )}
+              ) : (
+                <span className="material-symbols-outlined text-gray-400" style={{ fontSize: '64px' }}>
+                  person
+                </span>
+              )}
+            </div>
             <h2 className="text-xl font-bold text-center mb-1">{volunteer.name}</h2>
             {volunteer.role && (
               <p className="text-primary-600 text-center text-sm mb-4">{volunteer.role}</p>

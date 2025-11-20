@@ -101,15 +101,19 @@ export default function BlogGrid({ posts }: BlogGridProps) {
               href={`/blog/${post.slug}`}
               className="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition"
             >
-              {post.image_url && (
-                <div className="h-48 bg-gray-200 relative">
+              <div className="h-48 bg-gray-200 relative flex items-center justify-center">
+                {post.image_url ? (
                   <img
                     src={post.image_url}
                     alt={post.title}
                     className="w-full h-full object-cover"
                   />
-                </div>
-              )}
+                ) : (
+                  <span className="material-symbols-outlined text-gray-400 text-6xl">
+                    article
+                  </span>
+                )}
+              </div>
               <div className="p-6">
                 <h2 className="text-xl font-bold mb-2 hover:text-primary-600 transition">
                   {post.title}
