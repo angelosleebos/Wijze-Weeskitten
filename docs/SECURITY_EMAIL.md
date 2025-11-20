@@ -2,7 +2,7 @@
 
 ## Geïmplementeerde Security Maatregelen
 
-### 1. ✅ E-mail Validatie
+### 1.  E-mail Validatie
 **Probleem:** Ongevalideerde e-mail adressen kunnen leiden tot crashes of misbruik.
 
 **Oplossing:**
@@ -16,7 +16,7 @@ function isValidEmail(email: string): boolean {
 - Filter ongeldige adressen voordat verzenden
 - Voorkomt header injection via malformed e-mails
 
-### 2. ✅ Rate Limiting
+### 2.  Rate Limiting
 **Probleem:** Onbeperkt e-mails verzenden kan leiden tot:
 - Spam misbruik
 - SMTP provider blokkering
@@ -31,7 +31,7 @@ const RATE_LIMIT_WINDOW = 60 * 60 * 1000; // 1 hour
 - In-memory rate limiter (voor productie: Redis aanbevolen)
 - Automatische cleanup na time window
 
-### 3. ✅ Input Sanitization
+### 3.  Input Sanitization
 **Probleem:** Ongesaniteerde input kan leiden tot header injection attacks.
 
 **Oplossing:**
@@ -42,7 +42,7 @@ const sanitizedSubject = options.subject.substring(0, 200);
 - E-mail address sanitization
 - Voorkomt newline injection in headers
 
-### 4. ✅ TLS/SSL Certificate Validatie
+### 4.  TLS/SSL Certificate Validatie
 **Probleem:** `rejectUnauthorized: false` staat man-in-the-middle attacks toe.
 
 **Oplossing:**
@@ -55,7 +55,7 @@ tls: {
 - Production: strikte certificate validatie
 - Voorkomt MITM attacks in productie
 
-### 5. ✅ Connection Timeout
+### 5.  Connection Timeout
 **Probleem:** Hangende connections kunnen resources blokkeren.
 
 **Oplossing:**
@@ -66,7 +66,7 @@ connectionTimeout: 10000, // 10 seconds
 - Voorkomt resource exhaustion
 - Snelle failure detection
 
-### 6. ✅ SMTP Credentials Validatie
+### 6.  SMTP Credentials Validatie
 **Probleem:** Lege of ontbrekende credentials kunnen errors veroorzaken.
 
 **Oplossing:**
@@ -80,7 +80,7 @@ if (!settings.smtp_host || !settings.smtp_port) {
 - Graceful failure bij ontbrekende configuratie
 - Voorkomt crashes door misconfiguratie
 
-### 7. ✅ Header Injection Prevention
+### 7.  Header Injection Prevention
 **Probleem:** Kwaadwillige headers kunnen worden geïnjecteerd via email fields.
 
 **Oplossing:**
@@ -95,7 +95,7 @@ headers: {
 
 ## Resterende Security Concerns
 
-### ⚠️ MEDIUM PRIORITY
+###  MEDIUM PRIORITY
 
 #### 1. SMTP Credentials in Database
 **Huidige staat:** Wachtwoorden worden plain-text opgeslagen in database.
@@ -227,20 +227,20 @@ transporter.on('bounce', (info) => {
 ## Recommended Production Setup
 
 ### Gmail (Recommended for small scale)
-- ✅ App Passwords support
-- ✅ Built-in spam filtering
-- ⚠️ 500 emails/day limit
+-  App Passwords support
+-  Built-in spam filtering
+-  500 emails/day limit
 
 ### SendGrid (Recommended for medium scale)
-- ✅ 100 emails/day free tier
-- ✅ Professional deliverability
-- ✅ Detailed analytics
+-  100 emails/day free tier
+-  Professional deliverability
+-  Detailed analytics
 
 ### Amazon SES (Recommended for large scale)
-- ✅ Very low cost ($0.10/1000 emails)
-- ✅ High volume support
-- ✅ Excellent deliverability
-- ⚠️ Requires AWS account
+-  Very low cost ($0.10/1000 emails)
+-  High volume support
+-  Excellent deliverability
+-  Requires AWS account
 
 ## Incident Response
 

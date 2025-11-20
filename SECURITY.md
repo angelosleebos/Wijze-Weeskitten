@@ -212,10 +212,10 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 ## Changelog
 
 ### 2025-01-20 - Security Improvements
-- ✅ Removed JWT secret fallback
-- ✅ Added JWT authentication middleware
-- ✅ Protected all admin API endpoints
-- ✅ Added password strength validation
-- ✅ Updated .gitignore to exclude .env files
-- ✅ Generated secure JWT_SECRET
-- ✅ Added security documentation
+-  Removed JWT secret fallback
+-  Added JWT authentication middleware
+-  Protected all admin API endpoints
+-  Added password strength validation
+-  Updated .gitignore to exclude .env files
+-  Generated secure JWT_SECRET
+-  Added security documentation

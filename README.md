@@ -4,7 +4,7 @@ Een moderne website voor een kattenstichting met CMS, donatiemogelijkheid via iD
 
 ## Features
 
-- 🐱 **Katten overzicht** - Toon katten die een thuis zoeken
+-  **Katten overzicht** - Toon katten die een thuis zoeken
 - 📝 **Blog** - Deel verhalen en nieuws
 - 💰 **Donaties via iDEAL** - Veilig doneren met Mollie
 - 👥 **Contact pagina** - Overzicht van vrijwilligers
@@ -21,7 +21,7 @@ Een moderne website voor een kattenstichting met CMS, donatiemogelijkheid via iD
 
 ## Security Checklist
 
-⚠️ **Voordat je live gaat, check het volgende:**
+ **Voordat je live gaat, check het volgende:**
 
 - [ ] `.env` bevat een sterke JWT_SECRET (gebruik `openssl rand -base64 32`)
 - [ ] Admin wachtwoord voldoet aan eisen (min. 12 tekens, hoofdletter, cijfer, speciaal karakter)

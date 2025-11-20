@@ -313,23 +313,23 @@ Migratie bestand: `/database/migrations/add_recaptcha_and_analytics.sql`
 ## Security Overwegingen
 
 ### reCAPTCHA
-- ✅ Secret key alleen server-side gebruikt
-- ✅ Tokens single-use (expire na 2 minuten)
-- ✅ Score-based verificatie (threshold aanpasbaar)
-- ⚠️ Rate limiting aanbevolen voor extra bescherming
+-  Secret key alleen server-side gebruikt
+-  Tokens single-use (expire na 2 minuten)
+-  Score-based verificatie (threshold aanpasbaar)
+-  Rate limiting aanbevolen voor extra bescherming
 
 ### Google Analytics
-- ✅ Measurement ID publiek (niet geheim)
-- ✅ Geen PII (Personally Identifiable Information) verzonden
-- ⚠️ Cookie consent vereist voor EU compliance
-- ⚠️ Privacy policy moet GA gebruik vermelden
+-  Measurement ID publiek (niet geheim)
+-  Geen PII (Personally Identifiable Information) verzonden
+-  Cookie consent vereist voor EU compliance
+-  Privacy policy moet GA gebruik vermelden
 
 ### E-mail Beveiliging
-- ✅ Rate limiting: 10 e-mails/uur per ontvanger
-- ✅ Input sanitization voor XSS preventie
-- ✅ TLS validatie in productie
-- ✅ Header injection preventie
-- ⚠️ SMTP credentials in database (overweeg encryptie)
+-  Rate limiting: 10 e-mails/uur per ontvanger
+-  Input sanitization voor XSS preventie
+-  TLS validatie in productie
+-  Header injection preventie
+-  SMTP credentials in database (overweeg encryptie)
 
 Zie `/docs/SECURITY_EMAIL.md` voor uitgebreide e-mail security documentatie.
 

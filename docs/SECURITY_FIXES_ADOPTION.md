@@ -8,7 +8,7 @@ Deze update bevat kritieke security fixes voor de adoptie-aanvraag functionalite
 
 ---
 
-## 🔴 Fix 1: Rate Limiting op GET /api/adoption-requests
+##  Fix 1: Rate Limiting op GET /api/adoption-requests
 
 ### Probleem
 Het publieke endpoint `GET /api/adoption-requests?email=xxx` had geen rate limiting, waardoor:
@@ -17,9 +17,9 @@ Het publieke endpoint `GET /api/adoption-requests?email=xxx` had geen rate limit
 - **Brute-force attacks** op e-mailadressen geen beperking hadden
 
 ### Oplossing
-✅ **Rate limiting toegevoegd**: 5 verzoeken per minuut per IP-adres
-✅ **HTTP 429 response** bij overschrijding
-✅ **Rate limit headers** toegevoegd (`X-RateLimit-Remaining`, `X-RateLimit-Reset`)
+ **Rate limiting toegevoegd**: 5 verzoeken per minuut per IP-adres
+ **HTTP 429 response** bij overschrijding
+ **Rate limit headers** toegevoegd (`X-RateLimit-Remaining`, `X-RateLimit-Reset`)
 
 **Code**:
 ```typescript
@@ -36,13 +36,13 @@ if (!rateLimitResult.allowed) {
 ```
 
 ### Impact
-- ✅ Voorkomt email enumeration attacks
-- ✅ Beschermt privacy van aanvragers
-- ✅ Minimale impact op legitieme gebruikers (5 requests/min is ruim voldoende)
+-  Voorkomt email enumeration attacks
+-  Beschermt privacy van aanvragers
+-  Minimale impact op legitieme gebruikers (5 requests/min is ruim voldoende)
 
 ---
 
-## 🔴 Fix 2: HTML Escaping in E-mail Templates
+##  Fix 2: HTML Escaping in E-mail Templates
 
 ### Probleem
 User input werd **direct** in HTML e-mail templates geplaatst zonder escaping:
@@ -63,9 +63,9 @@ motivation: <img src=x onerror="malicious_code()">
 ```
 
 ### Oplossing
-✅ **HTML escape functie** geïmplementeerd (`/lib/html-escape.ts`)
-✅ **Alle user input** wordt escaped in e-mail templates
-✅ **Whitelist approach**: Alleen veilige HTML tags toegestaan
+ **HTML escape functie** geïmplementeerd (`/lib/html-escape.ts`)
+ **Alle user input** wordt escaped in e-mail templates
+ **Whitelist approach**: Alleen veilige HTML tags toegestaan
 
 **Code**:
 ```typescript
@@ -81,13 +81,13 @@ export function escapeHtml(text: string | null | undefined): string {
 ```
 
 ### Impact
-- ✅ Voorkomt XSS attacks in e-mails
-- ✅ Beschermt admin tegen phishing
-- ✅ Geen functionele impact (user-facing content blijft hetzelfde)
+-  Voorkomt XSS attacks in e-mails
+-  Beschermt admin tegen phishing
+-  Geen functionele impact (user-facing content blijft hetzelfde)
 
 ---
 
-## 🔴 Fix 3: reCAPTCHA Verplicht met Fallback Rate Limiting
+##  Fix 3: reCAPTCHA Verplicht met Fallback Rate Limiting
 
 ### Probleem
 reCAPTCHA verificatie was **optioneel**:
@@ -104,7 +104,7 @@ Aanvaller kon:
 - **Onbeperkt aanvragen** indienen
 
 ### Oplossing
-✅ **Twee-laags bescherming**:
+ **Twee-laags bescherming**:
 1. **Als reCAPTCHA geconfigureerd**: Token is verplicht, verificatie moet slagen
 2. **Als NIET geconfigureerd**: Fallback naar agressieve rate limiting (3 aanvragen/uur per IP)
 
@@ -143,13 +143,13 @@ if (settings.recaptcha_secret_key) {
 ```
 
 ### Impact
-- ✅ Voorkomt spam zelfs zonder reCAPTCHA configuratie
-- ✅ Beschermt tegen bot attacks
-- ⚠️ Fallback rate limit (3/uur) is agressief - **configureer reCAPTCHA voor productie**
+-  Voorkomt spam zelfs zonder reCAPTCHA configuratie
+-  Beschermt tegen bot attacks
+-  Fallback rate limit (3/uur) is agressief - **configureer reCAPTCHA voor productie**
 
 ---
 
-## 🔴 Fix 4: Settings API - Sensitive Data Exposure
+##  Fix 4: Settings API - Sensitive Data Exposure
 
 ### Probleem
 `GET /api/settings` was **publiek toegankelijk** en returneerde **alle** settings, inclusief:
@@ -160,7 +160,7 @@ if (settings.recaptcha_secret_key) {
 **Impact**: Iedereen kon credentials stelen!
 
 ### Oplossing
-✅ **Publieke API filtert gevoelige keys**:
+ **Publieke API filtert gevoelige keys**:
 ```typescript
 const SENSITIVE_KEYS = [
   'smtp_pass',
@@ -175,12 +175,12 @@ result.rows.forEach(row => {
 });
 ```
 
-✅ **Nieuw admin endpoint**: `/api/settings/admin` (authenticated)
+ **Nieuw admin endpoint**: `/api/settings/admin` (authenticated)
 - Returneert ALLE settings
 - Vereist JWT authenticatie
 - Alleen toegankelijk voor admin
 
-✅ **Admin panel gebruikt authenticated endpoint**:
+ **Admin panel gebruikt authenticated endpoint**:
 ```typescript
 // Was: const res = await fetch('/api/settings');
 // Nu:
@@ -188,9 +188,9 @@ const res = await authenticatedFetch('/api/settings/admin');
 ```
 
 ### Impact
-- ✅ Voorkomt credential leakage
-- ✅ Publieke API nog steeds bruikbaar voor non-sensitive data
-- ✅ Admin panel blijft volledig functioneel
+-  Voorkomt credential leakage
+-  Publieke API nog steeds bruikbaar voor non-sensitive data
+-  Admin panel blijft volledig functioneel
 
 ---
 
@@ -268,7 +268,7 @@ curl http://localhost:3000/api/settings/admin
 
 ## Resterende Security Concerns
 
-### 🟡 Medium Prioriteit
+###  Medium Prioriteit
 
 #### 1. Credentials Plain-text in Database
 **Probleem**: SMTP wachtwoorden en reCAPTCHA secret keys worden **onversleuteld** opgeslagen.
@@ -286,7 +286,7 @@ curl http://localhost:3000/api/settings/admin
 - Implementeer distributed rate limiting
 - Overweeg Cloudflare Rate Limiting voor extra laag
 
-### 🟢 Lage Prioriteit
+###  Lage Prioriteit
 
 #### 3. IP-based Rate Limiting Bypass
 **Probleem**: Aanvaller met rotating IP's kan rate limits omzeilen.
